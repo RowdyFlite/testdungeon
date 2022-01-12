@@ -1,0 +1,12 @@
+:: Intro
+One moment you were sitting at a computer. The next, you're outside, in a strange town. People wander the streets wearing armor and carrying swords and shields, and there's not a piece of electronics in sight.
+
+There's no doubt about it.
+
+You've been isekai'd!
+<<link "Explore the town" "IntroExplore">><</link>>
+
+:: IntroExplore
+The town is bustling with adventurers. You find an adventurer's guild and the entrance to a dungeon.
+<<link "Adventurer's Guild" "Guild">><</link>>
+<<link "Dungeon Entrance" "DungeonEntrance">><</link>>
