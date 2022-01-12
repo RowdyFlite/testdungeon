@@ -1,5 +1,5 @@
 set dest_folder=..\\build
-set destination=%dest_folder%\\TestDungeon.html
+set destination=%dest_folder%\\index.html
 set source=..\\story\\src
 set logfile=..\\build\\build_log.txt
 
