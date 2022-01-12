@@ -1,0 +1,11 @@
+:: DungeonCrawl
+<<print $current_room.desc>>
+
+<<for _i, _exit range $current_room.exits>>\
+	<<capture _exit>>\
+	  <<link _exit "Explore">>
+	  	  <<set $rooms[$current_room.id] = $current_room>>\
+		  <<set $current_room = $rooms[_exit]>>\
+	  <</link>>
+	<</capture>>\
+<</for>>\

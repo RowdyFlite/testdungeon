@@ -1,0 +1,11 @@
+:: Dungeon
+<<print $current_room.name>>(<<print $current_room.id>>)
+
+<<print $current_room.short_desc>>
+
+<<if $current_room.event == null>>\
+	<<include "DungeonCrawl">>
+<<else>>\
+	<<include "Event">>
+<</if>>\
+

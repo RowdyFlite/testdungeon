@@ -1,0 +1,12 @@
+:: Event
+<<set _evt=$current_room.event>>
+
+<<if _evt.type is "trap">>\
+	<<link "Trap!" "Trap">>
+	<</link>>
+<<elseif _evt.type is "battle">>\
+	<<link "Combat!" "Combat">>
+	<</link>>
+<<else>>\
+	Couldn't find switch for event type: _evt.type
+<<endif>>\

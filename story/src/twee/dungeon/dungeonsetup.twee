@@ -1,0 +1,67 @@
+::DungeonSetup
+
+<<script>>
+	function create_room(rooms, id, name, short_desc, desc, first_time_desc, exits){
+		let room= {id: id, name: name, short_desc: short_desc, desc: desc, first_time_desc: first_time_desc, exits: exits, event: null};
+		rooms[id] = room;
+	}
+
+	let rooms= {};
+
+	create_room(
+	  rooms, 
+	  "entrance",
+	  "Entrance", 
+	  "You are in a dark room.", 
+	  "You are in the entrance to the dungeon. There are torches lighting the area on the walls. There is a large closed door behind you.", 
+	  "The door slams shut behind you, leaving you in the cold, musky dungeon.",
+	  ["middle"]
+	);
+	
+	create_room(
+	  rooms,
+	  "middle",
+	  "Crossroads", 
+	  "You are at a crossroads.", 
+	  "You come to a crossroads. You can head in any cardinal direction.", 
+	  null,
+	  ["entrance", "battle", "trap", "boss"]
+	);
+	
+	create_room(
+	  rooms, 
+	  "battle",
+	  "Dead End", 
+	  "You are in a dark room.", 
+	  "You are in a dead end. The only way out is the way you came.",
+	  null,
+	  ["middle"]
+	);
+	
+	create_room(
+	  rooms, 
+	  "trap",
+	  "Dead End", 
+	  "You are in a dark room.", 
+	  "You are in a dead end. The only way out is the way you came.",
+	  null,
+	  ["middle"]
+	);
+	
+	create_room(
+	  rooms, 
+	  "boss",
+	  "Dead End", 
+	  "You are in a dark room.", 
+	  "You are in a dead end. The only way out is the way you came.",
+	  null,
+	  ["middle"]
+	);
+	
+	rooms["battle"].event = {type:"battle", id:"goblins"};
+	rooms["trap"].event = {type:"trap", id:""};
+	rooms["boss"].event = {type:"battle", id:"boss_goblin"};
+	
+	State.variables.current_room = rooms["entrance"];
+	State.variables.rooms = rooms;
+<</script>>

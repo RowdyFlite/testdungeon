@@ -1,0 +1,5 @@
+:: Die
+
+You lost a fight! You black out and reawaken in town.
+
+<<link "Town" "Town">><</link>>

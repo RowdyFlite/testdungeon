@@ -1,0 +1,9 @@
+:: Combat
+You're in a fight!
+
+<<link "Lose" "Die">>
+<</link>>
+
+<<link "Win" "Explore">>
+	<<set $current_room.event = null>>
+<</link>>

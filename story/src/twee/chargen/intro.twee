@@ -4,9 +4,4 @@ One moment you were sitting at a computer. The next, you're outside, in a strang
 There's no doubt about it.
 
 You've been isekai'd!
-<<link "Explore the town" "IntroExplore">><</link>>
-
-:: IntroExplore
-The town is bustling with adventurers. You find an adventurer's guild and the entrance to a dungeon.
-<<link "Adventurer's Guild" "Guild">><</link>>
-<<link "Dungeon Entrance" "DungeonEntrance">><</link>>
+<<link "Look around." "Town">><</link>>

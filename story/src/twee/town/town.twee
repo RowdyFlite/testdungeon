@@ -1,0 +1,3 @@
+:: Town
+The town is bustling with adventurers. You find an entrance to a dungeon.
+<<link "Dungeon Entrance" "DungeonEntrance">><</link>>
