@@ -1,3 +1,9 @@
 ::MainMenu
 
-This is the main menu.
+Test Dungeon
+Version: $game_version
+
+<<button "New Game" "Intro">><</button>>
+<<button "Load Game">><<script>>UI.saves()<</script>><</button>>
+
+<a href="https://github.com/RowdyFlite/testdungeon/">Repository</a>

@@ -1,3 +1,6 @@
 ::StoryInit
+<<script>>
 State.prng.init()
 Config.saves.slots = 3;
+<</script>>
+<<set $game_version="0.1.0">>
