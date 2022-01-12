@@ -1,13 +1,10 @@
+::StoryTitle
+Test Dungeon
+
 ::StoryData
 {
     "ifid": "7ECEE45E-2D4A-4203-865B-3F7A8914EBD8",
     "format": "SugarCube",
     "format-version": "2.30.0",
-    "start": "Start"
+    "start": "MainMenu"
 }
-
-::StoryTitle
-Test Dungeon
-
-:: Start
-<<include MainMenu>>

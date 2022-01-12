@@ -1,6 +1,6 @@
 set dest_folder=..\\build
 set destination=%dest_folder%\\TestDungeon.html
-set source=..\\story
+set source=..\\story\\src
 set logfile=..\\build\\build_log.txt
 
 :: delete old build artifacts
