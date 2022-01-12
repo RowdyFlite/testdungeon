@@ -1,0 +1,3 @@
+::StoryInit
+State.prng.init()
+Config.saves.slots = 3;
