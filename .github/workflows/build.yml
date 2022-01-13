@@ -31,7 +31,7 @@ jobs:
           mkdir build
           tweego story -o build/index.html
           cp -r /home/runner/work/testdungeon/testdungeon/build /home/runner/work/testdungeon/testdungeon/public
-          cp -r test
+          cp -r test /home/runner/work/testdungeon
 
       - name: Deploy to Pages
         uses: peaceiris/actions-gh-pages@v3.7.3
