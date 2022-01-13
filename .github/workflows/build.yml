@@ -31,11 +31,12 @@ jobs:
           mkdir build
           tweego story -o build/index.html
           cp -r /home/runner/work/testdungeon/testdungeon/build /home/runner/work/testdungeon/testdungeon/public
+          cp -r test
 
       - name: Deploy to Pages
         uses: peaceiris/actions-gh-pages@v3.7.3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
-          publish_dir: ./public
+          publish_dir: ./build
           #destination_dir: ${{steps.extract_branch.outputs.branch}}
