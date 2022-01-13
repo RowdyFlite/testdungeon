@@ -37,4 +37,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: ./build
-          destination_dir: ${{steps.extract_branch.outputs.branch}}
+          #destination_dir: ${{steps.extract_branch.outputs.branch}}
