@@ -1,9 +1,49 @@
 :: Combat
 You're in a fight!
+<<for _i, _log range $roundLog>>\
+	<<print _log>>
+<</for>>
+<<set $roundLog=[]>>\
+<<set $combat.finished = true>>
+Your HP: $player.currentHP/$player.maxHP
+<<if $player.currentHP > 0>>\\
+Opponents:
+	<<for _i, _enemy range $combat.opponents>>\
+		<<nobr>>
+	  	<<capture _enemy>>\
+	  		<<if _enemy.hp > 0>>
+	  			<<set $combat.finished = false>>
+		  		<<button "Attack">>\
+		  			<<set _dmg = 3>>
+		  			<<run $roundLog.push(`Attacked ${_enemy.name} for ${_dmg} damage!`)>>
+		  			<<set _enemy.hp -= _dmg>>
+		  			<<goto "Combat">>
+		  		<</button>>
+		  		<<print "_enemy.name _enemy.hp/_enemy.maxhp">>
+		  	<<else>>
+		  		<<print "_enemy.name 0/_enemy.maxhp">>
+	  		<</if>>
+		<</capture>>
+		<</nobr>>
+	<</for>>
+	<<if !$combat.finished>>
+		<<button "Wait">>\
+			<<goto "Combat">>
+		<</button>>
+	<</if>>
+<<else>>
+	<<link "Lose" "Die">><</link>>
+<</if>>
 
-<<link "Lose" "Die">>
-<</link>>
+<<for _i, _enemy range $combat.opponents>>\
+	<<if _enemy.hp > 0>>
+		<<set $player.currentHP -= _enemy.damage>>
+		<<run $roundLog.push(`${_enemy.name} attacked you and did ${_enemy.damage} damage!`)>>
+	<</if>>
+<</for>>
 
-<<link "Win" "Explore">>
-	<<set $current_room.event = null>>
-<</link>>
+<<if $player.currentHP > 0 && $combat.finished>>
+	<<link "You won!" "Explore">>
+		<<set $current_room.event = null>>
+	<</link>>
+<</if>>

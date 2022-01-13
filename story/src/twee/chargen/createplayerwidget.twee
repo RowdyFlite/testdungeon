@@ -1,0 +1,11 @@
+:: CreatePlayerWidget [widget]
+<<widget "createPlayer">>\
+    <<nobr>>
+		<<set $player = {}>>
+		<<set $player.name = $args[0]>>
+		<<set $player.maxHP = 10>>
+		<<set $player.currentHP = 10>>
+		<<set $flags = {}>>
+		<<set $flags.playerCard = true>>
+    <</nobr>>\
+<</widget>>

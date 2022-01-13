@@ -5,6 +5,6 @@ Test Dungeon
 {
     "ifid": "7ECEE45E-2D4A-4203-865B-3F7A8914EBD8",
     "format": "SugarCube",
-    "format-version": "2.30.0",
+    "format-version": "2.36.1",
     "start": "MainMenu"
 }
