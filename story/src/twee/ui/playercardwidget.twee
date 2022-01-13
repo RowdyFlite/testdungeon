@@ -1,0 +1,8 @@
+:: PlayerCardWidget [widget]
+<<widget "showPlayerCard">>\
+    <<nobr>>
+		<<run Dialog.setup()>>
+		<<run Dialog.wiki("Name: $player.name")>>
+		<<run Dialog.open()>>
+    <</nobr>>\
+<</widget>>

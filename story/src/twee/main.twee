@@ -1,7 +1,8 @@
 ::MainMenu
 
-Test Dungeon
-Version: $game_version
+<<set _title = Story.title>>
+<<print _title>>
+<<print Version: $game_version>>
 
 <<button "New Game" "Intro">><</button>>
 <<button "Load Game">><<script>>UI.saves()<</script>><</button>>

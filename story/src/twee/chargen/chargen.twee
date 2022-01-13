@@ -8,5 +8,7 @@ What is your name?<<textbox "_name" "" autofocus>>
 		<<set $player = {}>>
 		<<set $player.name = _name>>
 		<<goto "Town">>
+		<<set $flags = {}>>
+		<<set $flags.playerCard = true>>
 	<</if>>
 <</link>>
