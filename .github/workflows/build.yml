@@ -30,6 +30,9 @@ jobs:
           export PATH=$PATH:$(go env GOPATH)/bin
           mkdir build
           tweego story -o build/index.html
+          ls
+          cd build
+          ls
 
       - name: Deploy to Pages
         uses: peaceiris/actions-gh-pages@v3.7.3
