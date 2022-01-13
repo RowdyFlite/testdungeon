@@ -39,6 +39,9 @@ jobs:
           publish_dir: ./build
           destination_dir: ${{steps.extract_branch.outputs.branch}}
 
-      - name: Play
-        run: |
-          echo https://rowdyflite.github.io/testdungeon/${{steps.extract_branch.outputs.branch}}
+      - name: Comment Pull Request
+        uses: thollander/actions-comment-pull-request@v1.0.4
+        if: github.event_name == 'pull_request'
+        with:
+          message: 'This PR can be played at: https://rowdyflite.github.io/testdungeon/${{steps.extract_branch.outputs.branch}}'
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
