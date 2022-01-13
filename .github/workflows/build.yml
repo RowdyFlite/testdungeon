@@ -38,3 +38,7 @@ jobs:
           publish_branch: gh-pages
           publish_dir: ./build
           destination_dir: ${{steps.extract_branch.outputs.branch}}
+
+      - name: Play
+        run: |
+          echo https://rowdyflite.github.io/testdungeon/${{steps.extract_branch.outputs.branch}}
