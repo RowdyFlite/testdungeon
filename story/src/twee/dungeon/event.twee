@@ -3,6 +3,7 @@
 
 <<if _evt.type is "battle">>\
 	<<link "Combat!" "Combat">>
+		<<startCombat _evt.id>>
 	<</link>>
 <<else>>\
 	Couldn't find switch for event type: _evt.type
