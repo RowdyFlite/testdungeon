@@ -36,12 +36,5 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
-          publish_dir: ./build
+          publish_dir: build
           #destination_dir: ${{steps.extract_branch.outputs.branch}}
-
-      - name: WTF
-        run: |
-          pwd
-          ls
-          cd build
-          ls
