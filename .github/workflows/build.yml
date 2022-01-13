@@ -41,4 +41,7 @@ jobs:
 
       - name: WTF
         run: |
-          find index.html
+          pwd
+          ls
+          cd build
+          ls
