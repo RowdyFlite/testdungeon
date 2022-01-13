@@ -30,12 +30,13 @@ jobs:
           export PATH=$PATH:$(go env GOPATH)/bin
           mkdir build
           tweego story -o build/index.html
-          cd build
-          pwd
-          ls
 
       - name: Deploy to Pages
         uses: peaceiris/actions-gh-pages@v3.7.3
+        run: |
+          ls
+          cd build
+          ls
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
