@@ -1,9 +1,0 @@
-:: Trap
-It's a trap!
-
-<<link "Fail to clear the trap" "Explore">>
-<</link>>
-
-<<link "Clear the trap" "Explore">>
-	<<set $current_room.event = null>>
-<</link>>

@@ -25,12 +25,12 @@
 	  "You are at a crossroads.", 
 	  "You come to a crossroads. You can head in any cardinal direction.", 
 	  null,
-	  ["entrance", "battle", "trap", "boss"]
+	  ["entrance", "left", "right", "north"]
 	);
 	
 	create_room(
 	  rooms, 
-	  "battle",
+	  "right",
 	  "Dead End", 
 	  "You are in a dark room.", 
 	  "You are in a dead end. The only way out is the way you came.",
@@ -40,7 +40,7 @@
 	
 	create_room(
 	  rooms, 
-	  "trap",
+	  "left",
 	  "Dead End", 
 	  "You are in a dark room.", 
 	  "You are in a dead end. The only way out is the way you came.",
@@ -50,7 +50,7 @@
 	
 	create_room(
 	  rooms, 
-	  "boss",
+	  "north",
 	  "Dead End", 
 	  "You are in a dark room.", 
 	  "You are in a dead end. The only way out is the way you came.",
@@ -58,9 +58,8 @@
 	  ["middle"]
 	);
 	
-	rooms["battle"].event = {type:"battle", id:"goblins"};
-	rooms["trap"].event = {type:"trap", id:""};
-	rooms["boss"].event = {type:"battle", id:"boss_goblin"};
+	rooms["left"].event = {type:"battle", id:"goblins"};
+	rooms["north"].event = {type:"battle", id:"boss_goblin"};
 	
 	State.variables.current_room = rooms["entrance"];
 	State.variables.rooms = rooms;
