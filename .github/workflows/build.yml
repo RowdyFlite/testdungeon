@@ -30,8 +30,8 @@ jobs:
           export PATH=$PATH:$(go env GOPATH)/bin
           mkdir build
           tweego story -o build/index.html
-          ls
           cd build
+          pwd
           ls
 
       - name: Deploy to Pages
