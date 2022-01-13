@@ -30,11 +30,12 @@ jobs:
           export PATH=$PATH:$(go env GOPATH)/bin
           mkdir build
           tweego story -o build/index.html
+          copy /home/runner/work/testdungeon/testdungeon/build to /home/runner/work/testdungeon/testdungeon/public
 
       - name: Deploy to Pages
         uses: peaceiris/actions-gh-pages@v3.7.3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
-          publish_dir: build
+          publish_dir: ./public
           #destination_dir: ${{steps.extract_branch.outputs.branch}}
