@@ -19,6 +19,11 @@ jobs:
         with: 
           go-version: 1.13.x
 
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+
       - name: Build
         run: |
           go get github.com/tmedwards/tweego
@@ -31,3 +36,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: ./build
+          destination_dir: ${{steps.extract_branch.outputs.branch}}
