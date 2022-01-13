@@ -2,10 +2,8 @@
 <<widget "startCombat">>\
 	<<set _combatTag = $args[0]>>
     <<script>>
-    	let combat = {};
-    	combat.finished = false;
-    	combat.opponents = [];
-
+        let combat = window.start_combat();
+        
     	let opponent = {};
     	opponent.name = "goblin";
     	opponent.hp = 3;
