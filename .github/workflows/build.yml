@@ -28,6 +28,7 @@ jobs:
         run: |
           go get github.com/tmedwards/tweego
           export PATH=$PATH:$(go env GOPATH)/bin
+          mkdir build
           tweego story -o build/index.html
 
       - name: Deploy to Pages
