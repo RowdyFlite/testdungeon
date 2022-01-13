@@ -33,12 +33,12 @@ jobs:
 
       - name: Deploy to Pages
         uses: peaceiris/actions-gh-pages@v3.7.3
-        run: |
-          ls
-          cd build
-          ls
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: ./build
           #destination_dir: ${{steps.extract_branch.outputs.branch}}
+
+      - name: WTF
+        run: |
+          find index.html
