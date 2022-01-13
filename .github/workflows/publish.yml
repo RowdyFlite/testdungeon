@@ -1,0 +1,35 @@
+name: Publish
+
+on: workflow_dispatch
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Use Go 1.13
+        uses: actions/setup-go@v1
+        with: 
+          go-version: 1.13.x
+
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+
+      - name: Build
+        run: |
+          go get github.com/tmedwards/tweego
+          export PATH=$PATH:$(go env GOPATH)/bin
+          mkdir build
+          tweego story -o build/index.html
+
+      - name: Butler Push
+        uses: josephbmanley/butler-publish-itchio-action@v1.0.2
+        env:
+          BUTLER_CREDENTIALS: ${{ secrets.BUTLER_CREDENTIALS }}
+          CHANNEL: html
+          ITCH_GAME: test-dungeon
+          ITCH_USER: rowdyflite
+          PACKAGE: build
