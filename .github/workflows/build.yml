@@ -16,7 +16,8 @@ jobs:
 
       - name: Use Go 1.13
         uses: actions/setup-go@v1
-        with: go-version: 1.13.x
+        with: 
+          go-version: 1.13.x
 
       - name: Build
         run: |
