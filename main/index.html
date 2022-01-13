@@ -100,7 +100,7 @@ var saveAs=saveAs||navigator.msSaveBlob&&navigator.msSaveBlob.bind(navigator)||f
 		<div id="init-lacking">Your browser lacks required capabilities. Please upgrade it or switch to another to continue.</div>
 		<div id="init-loading"><div>Loading&hellip;</div></div>
 	</div>
-	<!-- UUID://7ECEE45E-2D4A-4203-865B-3F7A8914EBD8// --><tw-storydata name="Test Dungeon" startnode="12" creator="Tweego" creator-version="2.1.1" ifid="7ECEE45E-2D4A-4203-865B-3F7A8914EBD8" zoom="1" format="SugarCube" format-version="2.30.0" options="" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css"></style><script role="script" id="twine-user-script" type="text/twine-javascript"></script><tw-passagedata pid="1" name="Chargen" tags="" position="100,100" size="100,100">What is your name?&lt;&lt;textbox &quot;_name&quot; &quot;&quot; autofocus&gt;&gt;
+	<!-- UUID://7ECEE45E-2D4A-4203-865B-3F7A8914EBD8// --><tw-storydata name="Test Dungeon" startnode="11" creator="Tweego" creator-version="2.1.1" ifid="7ECEE45E-2D4A-4203-865B-3F7A8914EBD8" zoom="1" format="SugarCube" format-version="2.30.0" options="" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css"></style><script role="script" id="twine-user-script" type="text/twine-javascript"></script><tw-passagedata pid="1" name="Chargen" tags="" position="100,100" size="100,100">What is your name?&lt;&lt;textbox &quot;_name&quot; &quot;&quot; autofocus&gt;&gt;
 
 &lt;&lt;link &quot;Continue&quot;&gt;&gt;
 	&lt;&lt;if _name.length &lt; 2&gt;&gt;
@@ -168,12 +168,12 @@ You&#39;ve been isekai&#39;d!
 	  &quot;You are at a crossroads.&quot;, 
 	  &quot;You come to a crossroads. You can head in any cardinal direction.&quot;, 
 	  null,
-	  [&quot;entrance&quot;, &quot;battle&quot;, &quot;trap&quot;, &quot;boss&quot;]
+	  [&quot;entrance&quot;, &quot;left&quot;, &quot;right&quot;, &quot;north&quot;]
 	);
 	
 	create_room(
 	  rooms, 
-	  &quot;battle&quot;,
+	  &quot;right&quot;,
 	  &quot;Dead End&quot;, 
 	  &quot;You are in a dark room.&quot;, 
 	  &quot;You are in a dead end. The only way out is the way you came.&quot;,
@@ -183,7 +183,7 @@ You&#39;ve been isekai&#39;d!
 	
 	create_room(
 	  rooms, 
-	  &quot;trap&quot;,
+	  &quot;left&quot;,
 	  &quot;Dead End&quot;, 
 	  &quot;You are in a dark room.&quot;, 
 	  &quot;You are in a dead end. The only way out is the way you came.&quot;,
@@ -193,7 +193,7 @@ You&#39;ve been isekai&#39;d!
 	
 	create_room(
 	  rooms, 
-	  &quot;boss&quot;,
+	  &quot;north&quot;,
 	  &quot;Dead End&quot;, 
 	  &quot;You are in a dark room.&quot;, 
 	  &quot;You are in a dead end. The only way out is the way you came.&quot;,
@@ -201,18 +201,14 @@ You&#39;ve been isekai&#39;d!
 	  [&quot;middle&quot;]
 	);
 	
-	rooms[&quot;battle&quot;].event = {type:&quot;battle&quot;, id:&quot;goblins&quot;};
-	rooms[&quot;trap&quot;].event = {type:&quot;trap&quot;, id:&quot;&quot;};
-	rooms[&quot;boss&quot;].event = {type:&quot;battle&quot;, id:&quot;boss_goblin&quot;};
+	rooms[&quot;left&quot;].event = {type:&quot;battle&quot;, id:&quot;goblins&quot;};
+	rooms[&quot;north&quot;].event = {type:&quot;battle&quot;, id:&quot;boss_goblin&quot;};
 	
 	State.variables.current_room = rooms[&quot;entrance&quot;];
 	State.variables.rooms = rooms;
 &lt;&lt;/script&gt;&gt;</tw-passagedata><tw-passagedata pid="8" name="Event" tags="" position="975,100" size="100,100">&lt;&lt;set _evt=$current_room.event&gt;&gt;
 
-&lt;&lt;if _evt.type is &quot;trap&quot;&gt;&gt;\
-	&lt;&lt;link &quot;Trap!&quot; &quot;Trap&quot;&gt;&gt;
-	&lt;&lt;/link&gt;&gt;
-&lt;&lt;elseif _evt.type is &quot;battle&quot;&gt;&gt;\
+&lt;&lt;if _evt.type is &quot;battle&quot;&gt;&gt;\
 	&lt;&lt;link &quot;Combat!&quot; &quot;Combat&quot;&gt;&gt;
 	&lt;&lt;/link&gt;&gt;
 &lt;&lt;else&gt;&gt;\
@@ -225,36 +221,29 @@ You&#39;ve been isekai&#39;d!
 	&lt;&lt;include &quot;DungeonCrawl&quot;&gt;&gt;
 &lt;&lt;else&gt;&gt;\
 	&lt;&lt;include &quot;Event&quot;&gt;&gt;
-&lt;&lt;/if&gt;&gt;\</tw-passagedata><tw-passagedata pid="10" name="Trap" tags="" position="1225,100" size="100,100">It&#39;s a trap!
-
-&lt;&lt;link &quot;Fail to clear the trap&quot; &quot;Explore&quot;&gt;&gt;
-&lt;&lt;/link&gt;&gt;
-
-&lt;&lt;link &quot;Clear the trap&quot; &quot;Explore&quot;&gt;&gt;
-	&lt;&lt;set $current_room.event = null&gt;&gt;
-&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="11" name="StoryInit" tags="" position="100,225" size="100,100">&lt;&lt;script&gt;&gt;
+&lt;&lt;/if&gt;&gt;\</tw-passagedata><tw-passagedata pid="10" name="StoryInit" tags="" position="1225,100" size="100,100">&lt;&lt;script&gt;&gt;
 State.prng.init()
 Config.saves.slots = 3;
 &lt;&lt;/script&gt;&gt;
-&lt;&lt;set $game_version=&quot;0.1.0&quot;&gt;&gt;</tw-passagedata><tw-passagedata pid="12" name="MainMenu" tags="" position="225,225" size="100,100">&lt;&lt;set _title = Story.title&gt;&gt;
+&lt;&lt;set $game_version=&quot;0.2.0&quot;&gt;&gt;</tw-passagedata><tw-passagedata pid="11" name="MainMenu" tags="" position="100,225" size="100,100">&lt;&lt;set _title = Story.title&gt;&gt;
 &lt;&lt;print _title&gt;&gt;
 &lt;&lt;print Version: $game_version&gt;&gt;
 
 &lt;&lt;button &quot;New Game&quot; &quot;Intro&quot;&gt;&gt;&lt;&lt;/button&gt;&gt;
 &lt;&lt;button &quot;Load Game&quot;&gt;&gt;&lt;&lt;script&gt;&gt;UI.saves()&lt;&lt;/script&gt;&gt;&lt;&lt;/button&gt;&gt;
 
-&lt;a href=&quot;https://github.com/RowdyFlite/testdungeon/&quot;&gt;Repository&lt;/a&gt;</tw-passagedata><tw-passagedata pid="13" name="StoryAuthor" tags="" position="350,225" size="100,100">RowdyFlite</tw-passagedata><tw-passagedata pid="14" name="StoryDisplayTitle" tags="" position="475,225" size="100,100">Test Dungeon</tw-passagedata><tw-passagedata pid="15" name="DungeonEntrance" tags="" position="600,225" size="100,100">You are in front of an iron doorway surrounded by two guards.
+&lt;a href=&quot;https://github.com/RowdyFlite/testdungeon/&quot;&gt;Repository&lt;/a&gt;</tw-passagedata><tw-passagedata pid="12" name="StoryAuthor" tags="" position="225,225" size="100,100">RowdyFlite</tw-passagedata><tw-passagedata pid="13" name="StoryDisplayTitle" tags="" position="350,225" size="100,100">Test Dungeon</tw-passagedata><tw-passagedata pid="14" name="DungeonEntrance" tags="" position="475,225" size="100,100">You are in front of an iron doorway surrounded by two guards.
 
 &lt;&lt;link &quot;Enter the dungeon&quot; &quot;Dungeon&quot;&gt;&gt;&lt;&lt;include &quot;DungeonSetup&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;
-&lt;&lt;link &quot;Back to town&quot; &quot;Town&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="16" name="Town" tags="" position="725,225" size="100,100">The town is bustling with adventurers. You find an entrance to a dungeon.
+&lt;&lt;link &quot;Back to town&quot; &quot;Town&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="15" name="Town" tags="" position="600,225" size="100,100">The town is bustling with adventurers. You find an entrance to a dungeon.
 
-&lt;&lt;link &quot;Dungeon Entrance&quot; &quot;DungeonEntrance&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="17" name="PlayerCardWidget" tags="widget" position="850,225" size="100,100">&lt;&lt;widget &quot;showPlayerCard&quot;&gt;&gt;\
+&lt;&lt;link &quot;Dungeon Entrance&quot; &quot;DungeonEntrance&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="16" name="PlayerCardWidget" tags="widget" position="725,225" size="100,100">&lt;&lt;widget &quot;showPlayerCard&quot;&gt;&gt;\
     &lt;&lt;nobr&gt;&gt;
 		&lt;&lt;run Dialog.setup()&gt;&gt;
 		&lt;&lt;run Dialog.wiki(&quot;Name: $player.name&quot;)&gt;&gt;
 		&lt;&lt;run Dialog.open()&gt;&gt;
     &lt;&lt;/nobr&gt;&gt;\
-&lt;&lt;/widget&gt;&gt;</tw-passagedata><tw-passagedata pid="18" name="StoryMenu" tags="" position="975,225" size="100,100">&lt;&lt;if $flags != null &amp;&amp; $flags.playerCard == true&gt;&gt;\
+&lt;&lt;/widget&gt;&gt;</tw-passagedata><tw-passagedata pid="17" name="StoryMenu" tags="" position="850,225" size="100,100">&lt;&lt;if $flags != null &amp;&amp; $flags.playerCard == true&gt;&gt;\
 	&lt;&lt;link &quot;Player Card&quot;&gt;&gt;&lt;&lt;showPlayerCard&gt;&gt;&lt;&lt;/link&gt;&gt;
 &lt;&lt;/if&gt;&gt;</tw-passagedata></tw-storydata>
 	<script id="script-sugarcube" type="text/javascript">
