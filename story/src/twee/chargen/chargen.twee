@@ -1,0 +1,12 @@
+:: Chargen
+What is your name?<<textbox "_name" "" autofocus>>
+
+<<link "Continue">>
+<<if _name.length < 2>>
+	<<run UI.alert("Name must be at least 2 characters long.");>>
+<<else>>
+	<<set $player = {}>>
+	<<set $player.name = _name>>
+	<<goto "Town">>
+<</if>>
+<</link>>
