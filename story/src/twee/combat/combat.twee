@@ -5,12 +5,12 @@ You're in a fight!
 <</for>>
 <<set $roundLog=[]>>\
 <<run $combat.tick()>>\
-Your HP: $player.currentHP/$player.maxHP
+Your HP: $player.combatant.hp/$player.combatant.maxhp
 <<if $combat.finished>>\\
 Opponents:
 	<<for _i, _enemy range $combat.opponents>>\
 		<<nobr>>
-	  	<<capture _enemy>>\
+	  	<<capture _enemy, _dmg>>\
 	  		<<if _enemy.hp > 0>>
 		  		<<button "Attack">>\
 		  			<<set _dmg = 3>>
@@ -30,7 +30,7 @@ Opponents:
 	<</button>>
 	<<for _i, _enemy range $combat.opponents>>\
 		<<if _enemy.hp > 0>>
-			<<set $player.currentHP -= _enemy.damage>>
+			<<run $combat.attack($player.combatant, _dmg)>>
 			<<run $roundLog.push(`${_enemy.name} attacked you and did ${_enemy.damage} damage!`)>>
 		<</if>>
 	<</for>>

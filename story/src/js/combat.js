@@ -4,18 +4,19 @@ window.start_combat = function(){
 	combat.opponents = [];
 
 	combat.attack = function(defender, damage){
+		window.alert("Attacking defender for " + damage + " damage!");
 		defender.hp = Math.max(0, defender.hp - damage);
 	};
 
 	combat.tick = function(){
 		let playerAlive = false;
 		let opponentAlive = false;
-		for (fighter in this.playerTeam){
-			if (fighter.hp >= 0){
+		for (let player in this.playerTeam){
+			if (player.hp >= 0){
 				playerAlive = true;
 			}
 		}
-		for (opponent in this.playerTeam){
+		for (let opponent in this.opponents){
 			if (opponent.hp >= 0){
 				opponentAlive = true;
 			}

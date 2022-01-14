@@ -3,8 +3,9 @@
     <<nobr>>
 		<<set $player = {}>>
 		<<set $player.name = $args[0]>>
-		<<set $player.maxHP = 10>>
-		<<set $player.currentHP = 10>>
+		<<set $player.combatant = {}>>
+		<<set $player.combatant.maxhp = 10>>
+		<<set $player.combatant.hp = $player.combatant.maxhp>>
 		<<set $flags = {}>>
 		<<set $flags.playerCard = true>>
     <</nobr>>\
