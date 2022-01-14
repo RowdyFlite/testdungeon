@@ -1,12 +1,17 @@
 :: CreatePlayerWidget [widget]
 <<widget "createPlayer">>\
     <<nobr>>
-		<<set $player = {}>>
-		<<set $player.name = $args[0]>>
-		<<set $player.combatant = {}>>
-		<<set $player.combatant.maxhp = 10>>
-		<<set $player.combatant.hp = $player.combatant.maxhp>>
-		<<set $flags = {}>>
-		<<set $flags.playerCard = true>>
+    	<<script>>
+			let player = {};
+			player.name = State.variables.args[0];
+			player.combatant = {};
+			player.combatant.maxhp = 10;
+			player.combatant.hp = player.combatant.maxhp;
+			State.variables.player = player;
+
+			let flags = {};
+			flags.playerCard = true;
+			State.variables.flags = flags;
+    	<</script>>
     <</nobr>>\
 <</widget>>
