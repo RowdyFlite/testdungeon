@@ -13,12 +13,7 @@
 
         combat.playerTeam.push(State.variables.player.combatant);
 
-        State.variables.player.combatant.hp = 11;
-        combat.playerTeam[0].hp = 12;
-
     	State.variables.combat = combat;
     	State.variables.roundLog = [];
-        window.alert("Do players ==?: " + State.variables.player.combatant == combat.playerTeam[0]);
-        window.alert("player.combatant.hp: " + State.variables.player.combatant.hp + ". combat.playerTeam[0].hp: " + State.variables.combat.playerTeam[0].hp);
     <</script>>\
 <</widget>>
