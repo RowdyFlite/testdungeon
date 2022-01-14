@@ -1,5 +1,8 @@
 :: Combat
 You're in a fight!
+
+<<run window.alert("player.combatant.hp: " + $player.combatant.hp + ". combat.playerTeam[0].hp: " + $combat.playerTeam[0].hp)>>
+
 <<for _i, _log range $roundLog>>\
 	<<print _log>>
 <</for>>

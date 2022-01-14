@@ -11,13 +11,13 @@ window.start_combat = function(){
 		let playerAlive = false;
 		let opponentAlive = false;
 		this.playerTeam.forEach(player => {
-			if (player.hp >= 0){
+			if (player.hp > 0){
 				playerAlive = true;
 			}
 		});
 
 		this.opponents.forEach(opponent => {
-			if (opponent.hp >= 0){
+			if (opponent.hp > 0){
 				opponentAlive = true;
 			}
 		});
@@ -29,8 +29,8 @@ window.start_combat = function(){
 		}
 		else if (!opponentAlive){
 			this.finished = true;
-			this.won = false;
-			this.lost = true;	
+			this.won = true;
+			this.lost = false;	
 		}
 	};
 
