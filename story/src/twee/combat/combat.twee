@@ -1,22 +1,46 @@
 :: Combat
-You're in a fight!
+<<set _player=$combat.combatants["player"]>>\
+
+<<include "CombatLog">>
+
+<<run $combat.tick()>>\
+
+<<if !$combat.finished>>
+	<<include "CombatActions">>
+<<else>>
+	<<if $combat.won>>
+		<<include "CombatWin">>
+	<<else>>
+		<<include "CombatLoss">>
+	<</if>>
+<</if>>
+
+:: CombatLog
 <<for _i, _log range $roundLog>>\
 	<<print _log>>
 <</for>>
 <<set $roundLog=[]>>\
-<<set $combat.finished = true>>
-Your HP: $player.currentHP/$player.maxHP
-<<if $player.currentHP > 0>>\\
+
+:: CombatWin
+<<link "You won!" "Explore">>
+	<<set $current_room.event = null>>
+<</link>>
+
+:: CombatLoss
+<<link "Lose" "Die">><</link>>
+
+:: CombatActions
+Your HP: _player.hp/_player.maxhp
 Opponents:
-	<<for _i, _enemy range $combat.opponents>>\
+	<<for _i, _id range $combat.opponents>>\
+		<<set _enemy=$combat.getCombatant(_id)>>
 		<<nobr>>
 	  	<<capture _enemy>>\
-	  		<<if _enemy.hp > 0>>
-	  			<<set $combat.finished = false>>
+	  		<<if _enemy.hp > 0>>\
 		  		<<button "Attack">>\
 		  			<<set _dmg = 3>>
 		  			<<run $roundLog.push(`Attacked ${_enemy.name} for ${_dmg} damage!`)>>
-		  			<<set _enemy.hp -= _dmg>>
+		  			<<run $combat.attack("player", _enemy.name)>>
 		  			<<goto "Combat">>
 		  		<</button>>
 		  		<<print "_enemy.name _enemy.hp/_enemy.maxhp">>
@@ -26,24 +50,13 @@ Opponents:
 		<</capture>>
 		<</nobr>>
 	<</for>>
-	<<if !$combat.finished>>
-		<<button "Wait">>\
-			<<goto "Combat">>
-		<</button>>
-	<</if>>
-<<else>>
-	<<link "Lose" "Die">><</link>>
-<</if>>
-
-<<for _i, _enemy range $combat.opponents>>\
-	<<if _enemy.hp > 0>>
-		<<set $player.currentHP -= _enemy.damage>>
-		<<run $roundLog.push(`${_enemy.name} attacked you and did ${_enemy.damage} damage!`)>>
-	<</if>>
-<</for>>
-
-<<if $player.currentHP > 0 && $combat.finished>>
-	<<link "You won!" "Explore">>
-		<<set $current_room.event = null>>
-	<</link>>
-<</if>>
+	<<button "Wait">>\
+		<<goto "Combat">>
+	<</button>>
+	<<for _i, _id range $combat.opponents>>\
+		<<set _enemy=$combat.getCombatant(_id)>>
+		<<if _enemy.hp > 0>>
+			<<run $combat.attack(_enemy.name, "player")>>
+			<<run $roundLog.push(`${_enemy.name} attacked you and did ${_enemy.damage} damage!`)>>
+		<</if>>
+	<</for>>

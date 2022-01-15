@@ -1,10 +1,7 @@
 :: CombatWidgets [widget]
 <<widget "startCombat">>\
-	<<set _combatTag = $args[0]>>
     <<script>>
-    	let combat = {};
-    	combat.finished = false;
-    	combat.opponents = [];
+        let combat = window.start_combat();
 
     	let opponent = {};
     	opponent.name = "goblin";
@@ -12,7 +9,8 @@
     	opponent.maxhp = 3;
     	opponent.damage = 1;
 
-    	combat.opponents.push(opponent);
+    	combat.addOpponent(opponent.name, opponent);
+        combat.addPlayer("player", State.variables.player.combatant);
 
     	State.variables.combat = combat;
     	State.variables.roundLog = [];
