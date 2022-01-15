@@ -98,7 +98,63 @@ var LZString={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
 		<div id="init-lacking"><p>Browser lacks capabilities required to play.</p><p>Upgrade or switch to another browser.</p></div>
 		<div id="init-loading"><div>Loading&hellip;</div></div>
 	</div>
-	<!-- UUID://7ECEE45E-2D4A-4203-865B-3F7A8914EBD8// --><tw-storydata name="Test Dungeon" startnode="13" creator="Tweego" creator-version="2.1.1" ifid="7ECEE45E-2D4A-4203-865B-3F7A8914EBD8" zoom="1" format="SugarCube" format-version="2.36.1" options="" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css"></style><script role="script" id="twine-user-script" type="text/twine-javascript"></script><tw-passagedata pid="1" name="Chargen" tags="" position="100,100" size="100,100">What is your name?&lt;&lt;textbox &quot;_name&quot; &quot;&quot; autofocus&gt;&gt;
+	<!-- UUID://7ECEE45E-2D4A-4203-865B-3F7A8914EBD8// --><tw-storydata name="Test Dungeon" startnode="17" creator="Tweego" creator-version="2.1.1" ifid="7ECEE45E-2D4A-4203-865B-3F7A8914EBD8" zoom="1" format="SugarCube" format-version="2.36.1" options="" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css"></style><script role="script" id="twine-user-script" type="text/twine-javascript">window.start_combat = function(){
+	let combat = {};
+	combat.playerTeam = new Set();
+	combat.opponents = new Set();
+	combat.combatants = {};
+
+	combat.getCombatant = function(id){
+		return this.combatants[id];
+	}
+
+	combat.addPlayer = function(id, combatant){
+		this.combatants[id] = combatant;
+		this.playerTeam.add(id);
+	};
+
+	combat.addOpponent = function(id, combatant){
+		this.combatants[id] = combatant;
+		this.opponents.add(id);
+	};
+
+	combat.attack = function(attackerId, defenderId){
+		let dmg = this.combatants[attackerId].damage;
+		let defender = this.combatants[defenderId];
+		defender.hp = Math.max(0, defender.hp - dmg);
+	};
+
+	combat.tick = function(){
+		let playerAlive = false;
+		let opponentAlive = false;
+		for (let id of this.playerTeam){
+			if (this.getCombatant(id).hp > 0){
+				playerAlive = true;
+			}
+		}
+		for (let id of this.opponents){
+			if (this.getCombatant(id).hp > 0){
+				opponentAlive = true;
+			}		
+		}
+
+		if (!playerAlive){
+			this.finished = true;
+			this.won = false;
+			this.lost = true;
+		}
+		else if (!opponentAlive){
+			this.finished = true;
+			this.won = true;
+			this.lost = false;	
+		}
+	};
+
+	combat.finished = false;
+	combat.won = false;
+	combat.lost = false;
+	return combat;
+}</script><tw-passagedata pid="1" name="Chargen" tags="" position="100,100" size="100,100">What is your name?&lt;&lt;textbox &quot;_name&quot; &quot;&quot; autofocus&gt;&gt;
 
 &lt;&lt;link &quot;Continue&quot;&gt;&gt;
 	&lt;&lt;if _name.length &lt; 2&gt;&gt;
@@ -111,36 +167,55 @@ var LZString={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
 	&lt;&lt;/if&gt;&gt;
 &lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="2" name="CreatePlayerWidget" tags="widget" position="225,100" size="100,100">&lt;&lt;widget &quot;createPlayer&quot;&gt;&gt;\
     &lt;&lt;nobr&gt;&gt;
-		&lt;&lt;set $player = {}&gt;&gt;
-		&lt;&lt;set $player.name = $args[0]&gt;&gt;
-		&lt;&lt;set $player.maxHP = 10&gt;&gt;
-		&lt;&lt;set $player.currentHP = 10&gt;&gt;
-		&lt;&lt;set $flags = {}&gt;&gt;
-		&lt;&lt;set $flags.playerCard = true&gt;&gt;
+    	&lt;&lt;script&gt;&gt;
+			let player = {};
+			player.name = State.variables.args[0];
+			player.combatant = {};
+			player.combatant.maxhp = 10;
+			player.combatant.damage = 3;
+			player.combatant.hp = player.combatant.maxhp;
+			State.variables.player = player;
+
+			let flags = {};
+			flags.playerCard = true;
+			State.variables.flags = flags;
+    	&lt;&lt;/script&gt;&gt;
     &lt;&lt;/nobr&gt;&gt;\
 &lt;&lt;/widget&gt;&gt;</tw-passagedata><tw-passagedata pid="3" name="Intro" tags="" position="350,100" size="100,100">One moment you were sitting at a computer. The next, you&#39;re outside, in a strange town. People wander the streets wearing armor and carrying swords and shields, and there&#39;s not a piece of electronics in sight.
 
 There&#39;s no doubt about it.
 
 You&#39;ve been isekai&#39;d!
-&lt;&lt;link &quot;Continue&quot; &quot;Chargen&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="4" name="Combat" tags="" position="475,100" size="100,100">You&#39;re in a fight!
-&lt;&lt;for _i, _log range $roundLog&gt;&gt;\
+&lt;&lt;link &quot;Continue&quot; &quot;Chargen&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="4" name="Combat" tags="" position="475,100" size="100,100">&lt;&lt;set _player=$combat.combatants[&quot;player&quot;]&gt;&gt;\
+
+&lt;&lt;include &quot;CombatLog&quot;&gt;&gt;
+
+&lt;&lt;run $combat.tick()&gt;&gt;\
+
+&lt;&lt;if !$combat.finished&gt;&gt;
+	&lt;&lt;include &quot;CombatActions&quot;&gt;&gt;
+&lt;&lt;else&gt;&gt;
+	&lt;&lt;if $combat.won&gt;&gt;
+		&lt;&lt;include &quot;CombatWin&quot;&gt;&gt;
+	&lt;&lt;else&gt;&gt;
+		&lt;&lt;include &quot;CombatLoss&quot;&gt;&gt;
+	&lt;&lt;/if&gt;&gt;
+&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="5" name="CombatLog" tags="" position="600,100" size="100,100">&lt;&lt;for _i, _log range $roundLog&gt;&gt;\
 	&lt;&lt;print _log&gt;&gt;
 &lt;&lt;/for&gt;&gt;
-&lt;&lt;set $roundLog=[]&gt;&gt;\
-&lt;&lt;set $combat.finished = true&gt;&gt;
-Your HP: $player.currentHP/$player.maxHP
-&lt;&lt;if $player.currentHP &gt; 0&gt;&gt;\\
+&lt;&lt;set $roundLog=[]&gt;&gt;\</tw-passagedata><tw-passagedata pid="6" name="CombatWin" tags="" position="725,100" size="100,100">&lt;&lt;link &quot;You won!&quot; &quot;Explore&quot;&gt;&gt;
+	&lt;&lt;set $current_room.event = null&gt;&gt;
+&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="7" name="CombatLoss" tags="" position="850,100" size="100,100">&lt;&lt;link &quot;Lose&quot; &quot;Die&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="8" name="CombatActions" tags="" position="975,100" size="100,100">Your HP: _player.hp/_player.maxhp
 Opponents:
-	&lt;&lt;for _i, _enemy range $combat.opponents&gt;&gt;\
+	&lt;&lt;for _i, _id range $combat.opponents&gt;&gt;\
+		&lt;&lt;set _enemy=$combat.getCombatant(_id)&gt;&gt;
 		&lt;&lt;nobr&gt;&gt;
 	  	&lt;&lt;capture _enemy&gt;&gt;\
-	  		&lt;&lt;if _enemy.hp &gt; 0&gt;&gt;
-	  			&lt;&lt;set $combat.finished = false&gt;&gt;
+	  		&lt;&lt;if _enemy.hp &gt; 0&gt;&gt;\
 		  		&lt;&lt;button &quot;Attack&quot;&gt;&gt;\
 		  			&lt;&lt;set _dmg = 3&gt;&gt;
 		  			&lt;&lt;run $roundLog.push(`Attacked ${_enemy.name} for ${_dmg} damage!`)&gt;&gt;
-		  			&lt;&lt;set _enemy.hp -= _dmg&gt;&gt;
+		  			&lt;&lt;run $combat.attack(&quot;player&quot;, _enemy.name)&gt;&gt;
 		  			&lt;&lt;goto &quot;Combat&quot;&gt;&gt;
 		  		&lt;&lt;/button&gt;&gt;
 		  		&lt;&lt;print &quot;_enemy.name _enemy.hp/_enemy.maxhp&quot;&gt;&gt;
@@ -150,32 +225,18 @@ Opponents:
 		&lt;&lt;/capture&gt;&gt;
 		&lt;&lt;/nobr&gt;&gt;
 	&lt;&lt;/for&gt;&gt;
-	&lt;&lt;if !$combat.finished&gt;&gt;
-		&lt;&lt;button &quot;Wait&quot;&gt;&gt;\
-			&lt;&lt;goto &quot;Combat&quot;&gt;&gt;
-		&lt;&lt;/button&gt;&gt;
-	&lt;&lt;/if&gt;&gt;
-&lt;&lt;else&gt;&gt;
-	&lt;&lt;link &quot;Lose&quot; &quot;Die&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;
-&lt;&lt;/if&gt;&gt;
-
-&lt;&lt;for _i, _enemy range $combat.opponents&gt;&gt;\
-	&lt;&lt;if _enemy.hp &gt; 0&gt;&gt;
-		&lt;&lt;set $player.currentHP -= _enemy.damage&gt;&gt;
-		&lt;&lt;run $roundLog.push(`${_enemy.name} attacked you and did ${_enemy.damage} damage!`)&gt;&gt;
-	&lt;&lt;/if&gt;&gt;
-&lt;&lt;/for&gt;&gt;
-
-&lt;&lt;if $player.currentHP &gt; 0 &amp;&amp; $combat.finished&gt;&gt;
-	&lt;&lt;link &quot;You won!&quot; &quot;Explore&quot;&gt;&gt;
-		&lt;&lt;set $current_room.event = null&gt;&gt;
-	&lt;&lt;/link&gt;&gt;
-&lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="5" name="CombatWidgets" tags="widget" position="600,100" size="100,100">&lt;&lt;widget &quot;startCombat&quot;&gt;&gt;\
-	&lt;&lt;set _combatTag = $args[0]&gt;&gt;
+	&lt;&lt;button &quot;Wait&quot;&gt;&gt;\
+		&lt;&lt;goto &quot;Combat&quot;&gt;&gt;
+	&lt;&lt;/button&gt;&gt;
+	&lt;&lt;for _i, _id range $combat.opponents&gt;&gt;\
+		&lt;&lt;set _enemy=$combat.getCombatant(_id)&gt;&gt;
+		&lt;&lt;if _enemy.hp &gt; 0&gt;&gt;
+			&lt;&lt;run $combat.attack(_enemy.name, &quot;player&quot;)&gt;&gt;
+			&lt;&lt;run $roundLog.push(`${_enemy.name} attacked you and did ${_enemy.damage} damage!`)&gt;&gt;
+		&lt;&lt;/if&gt;&gt;
+	&lt;&lt;/for&gt;&gt;</tw-passagedata><tw-passagedata pid="9" name="CombatWidgets" tags="widget" position="1100,100" size="100,100">&lt;&lt;widget &quot;startCombat&quot;&gt;&gt;\
     &lt;&lt;script&gt;&gt;
-    	let combat = {};
-    	combat.finished = false;
-    	combat.opponents = [];
+        let combat = window.start_combat();
 
     	let opponent = {};
     	opponent.name = &quot;goblin&quot;;
@@ -183,14 +244,15 @@ Opponents:
     	opponent.maxhp = 3;
     	opponent.damage = 1;
 
-    	combat.opponents.push(opponent);
+    	combat.addOpponent(opponent.name, opponent);
+        combat.addPlayer(&quot;player&quot;, State.variables.player.combatant);
 
     	State.variables.combat = combat;
     	State.variables.roundLog = [];
     &lt;&lt;/script&gt;&gt;\
-&lt;&lt;/widget&gt;&gt;</tw-passagedata><tw-passagedata pid="6" name="Die" tags="" position="725,100" size="100,100">You lost a fight! You black out and reawaken in town.
+&lt;&lt;/widget&gt;&gt;</tw-passagedata><tw-passagedata pid="10" name="Die" tags="" position="1225,100" size="100,100">You lost a fight! You black out and reawaken in town.
 
-&lt;&lt;link &quot;Town&quot; &quot;Town&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="7" name="Dungeon" tags="" position="850,100" size="100,100">&lt;&lt;print $current_room.name&gt;&gt;(&lt;&lt;print $current_room.id&gt;&gt;)
+&lt;&lt;link &quot;Town&quot; &quot;Town&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="11" name="Dungeon" tags="" position="100,225" size="100,100">&lt;&lt;print $current_room.name&gt;&gt;(&lt;&lt;print $current_room.id&gt;&gt;)
 
 &lt;&lt;print $current_room.short_desc&gt;&gt;
 
@@ -198,7 +260,7 @@ Opponents:
 	&lt;&lt;include &quot;DungeonCrawl&quot;&gt;&gt;
 &lt;&lt;else&gt;&gt;\
 	&lt;&lt;include &quot;Event&quot;&gt;&gt;
-&lt;&lt;/if&gt;&gt;\</tw-passagedata><tw-passagedata pid="8" name="DungeonCrawl" tags="" position="975,100" size="100,100">&lt;&lt;print $current_room.desc&gt;&gt;
+&lt;&lt;/if&gt;&gt;\</tw-passagedata><tw-passagedata pid="12" name="DungeonCrawl" tags="" position="225,225" size="100,100">&lt;&lt;print $current_room.desc&gt;&gt;
 
 &lt;&lt;for _i, _exit range $current_room.exits&gt;&gt;\
 	&lt;&lt;capture _exit&gt;&gt;\
@@ -207,7 +269,7 @@ Opponents:
 		  &lt;&lt;set $current_room = $rooms[_exit]&gt;&gt;\
 	  &lt;&lt;/link&gt;&gt;
 	&lt;&lt;/capture&gt;&gt;\
-&lt;&lt;/for&gt;&gt;\</tw-passagedata><tw-passagedata pid="9" name="DungeonSetup" tags="" position="1100,100" size="100,100">&lt;&lt;script&gt;&gt;
+&lt;&lt;/for&gt;&gt;\</tw-passagedata><tw-passagedata pid="13" name="DungeonSetup" tags="" position="350,225" size="100,100">&lt;&lt;script&gt;&gt;
 	function create_room(rooms, id, name, short_desc, desc, first_time_desc, exits){
 		let room= {id: id, name: name, short_desc: short_desc, desc: desc, first_time_desc: first_time_desc, exits: exits, event: null};
 		rooms[id] = room;
@@ -270,7 +332,7 @@ Opponents:
 	
 	State.variables.current_room = rooms[&quot;entrance&quot;];
 	State.variables.rooms = rooms;
-&lt;&lt;/script&gt;&gt;</tw-passagedata><tw-passagedata pid="10" name="Event" tags="" position="1225,100" size="100,100">&lt;&lt;set _evt=$current_room.event&gt;&gt;
+&lt;&lt;/script&gt;&gt;</tw-passagedata><tw-passagedata pid="14" name="Event" tags="" position="475,225" size="100,100">&lt;&lt;set _evt=$current_room.event&gt;&gt;
 
 &lt;&lt;if _evt.type is &quot;battle&quot;&gt;&gt;\
 	&lt;&lt;link &quot;Combat!&quot; &quot;Combat&quot;&gt;&gt;
@@ -278,7 +340,7 @@ Opponents:
 	&lt;&lt;/link&gt;&gt;
 &lt;&lt;else&gt;&gt;\
 	Couldn&#39;t find switch for event type: _evt.type
-&lt;&lt;endif&gt;&gt;\</tw-passagedata><tw-passagedata pid="11" name="Explore" tags="" position="100,225" size="100,100">&lt;&lt;print $current_room.name&gt;&gt;(&lt;&lt;print $current_room.id&gt;&gt;)
+&lt;&lt;endif&gt;&gt;\</tw-passagedata><tw-passagedata pid="15" name="Explore" tags="" position="600,225" size="100,100">&lt;&lt;print $current_room.name&gt;&gt;(&lt;&lt;print $current_room.id&gt;&gt;)
 
 &lt;&lt;print $current_room.short_desc&gt;&gt;
 
@@ -286,30 +348,30 @@ Opponents:
 	&lt;&lt;include &quot;DungeonCrawl&quot;&gt;&gt;
 &lt;&lt;else&gt;&gt;\
 	&lt;&lt;include &quot;Event&quot;&gt;&gt;
-&lt;&lt;/if&gt;&gt;\</tw-passagedata><tw-passagedata pid="12" name="StoryInit" tags="" position="225,225" size="100,100">&lt;&lt;script&gt;&gt;
+&lt;&lt;/if&gt;&gt;\</tw-passagedata><tw-passagedata pid="16" name="StoryInit" tags="" position="725,225" size="100,100">&lt;&lt;script&gt;&gt;
 State.prng.init()
 Config.saves.slots = 3;
 &lt;&lt;/script&gt;&gt;
-&lt;&lt;set $game_version=&quot;0.2.0&quot;&gt;&gt;</tw-passagedata><tw-passagedata pid="13" name="MainMenu" tags="" position="350,225" size="100,100">&lt;&lt;set _title = Story.title&gt;&gt;
+&lt;&lt;set $game_version=&quot;0.2.0&quot;&gt;&gt;</tw-passagedata><tw-passagedata pid="17" name="MainMenu" tags="" position="850,225" size="100,100">&lt;&lt;set _title = Story.title&gt;&gt;
 &lt;&lt;print _title&gt;&gt;
 &lt;&lt;print Version: $game_version&gt;&gt;
 
 &lt;&lt;button &quot;New Game&quot; &quot;Intro&quot;&gt;&gt;&lt;&lt;/button&gt;&gt;
 &lt;&lt;button &quot;Load Game&quot;&gt;&gt;&lt;&lt;script&gt;&gt;UI.saves()&lt;&lt;/script&gt;&gt;&lt;&lt;/button&gt;&gt;
 
-&lt;a href=&quot;https://github.com/RowdyFlite/testdungeon/&quot;&gt;Repository&lt;/a&gt;</tw-passagedata><tw-passagedata pid="14" name="StoryAuthor" tags="" position="475,225" size="100,100">RowdyFlite</tw-passagedata><tw-passagedata pid="15" name="StoryDisplayTitle" tags="" position="600,225" size="100,100">Test Dungeon</tw-passagedata><tw-passagedata pid="16" name="DungeonEntrance" tags="" position="725,225" size="100,100">You are in front of an iron doorway surrounded by two guards.
+&lt;a href=&quot;https://github.com/RowdyFlite/testdungeon/&quot;&gt;Repository&lt;/a&gt;</tw-passagedata><tw-passagedata pid="18" name="StoryAuthor" tags="" position="975,225" size="100,100">RowdyFlite</tw-passagedata><tw-passagedata pid="19" name="StoryDisplayTitle" tags="" position="1100,225" size="100,100">Test Dungeon</tw-passagedata><tw-passagedata pid="20" name="DungeonEntrance" tags="" position="1225,225" size="100,100">You are in front of an iron doorway surrounded by two guards.
 
 &lt;&lt;link &quot;Enter the dungeon&quot; &quot;Dungeon&quot;&gt;&gt;&lt;&lt;include &quot;DungeonSetup&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;
-&lt;&lt;link &quot;Back to town&quot; &quot;Town&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="17" name="Town" tags="" position="850,225" size="100,100">The town is bustling with adventurers. You find an entrance to a dungeon.
+&lt;&lt;link &quot;Back to town&quot; &quot;Town&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="21" name="Town" tags="" position="100,350" size="100,100">The town is bustling with adventurers. You find an entrance to a dungeon.
 
-&lt;&lt;link &quot;Dungeon Entrance&quot; &quot;DungeonEntrance&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="18" name="PlayerCardWidget" tags="widget" position="975,225" size="100,100">&lt;&lt;widget &quot;showPlayerCard&quot;&gt;&gt;\
+&lt;&lt;link &quot;Dungeon Entrance&quot; &quot;DungeonEntrance&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="22" name="PlayerCardWidget" tags="widget" position="225,350" size="100,100">&lt;&lt;widget &quot;showPlayerCard&quot;&gt;&gt;\
     &lt;&lt;nobr&gt;&gt;
 		&lt;&lt;run Dialog.setup()&gt;&gt;
 		&lt;&lt;run Dialog.wiki(&quot;Name: $player.name&lt;br&gt;&quot;)&gt;&gt;
-		&lt;&lt;run Dialog.wiki(&quot;HP: $player.currentHP / $player.maxHP&lt;br&gt;&quot;)&gt;&gt;
+		&lt;&lt;run Dialog.wiki(&quot;HP: $player.combatant.hp / $player.combatant.maxhp&lt;br&gt;&quot;)&gt;&gt;
 		&lt;&lt;run Dialog.open()&gt;&gt;
     &lt;&lt;/nobr&gt;&gt;\
-&lt;&lt;/widget&gt;&gt;</tw-passagedata><tw-passagedata pid="19" name="StoryMenu" tags="" position="1100,225" size="100,100">&lt;&lt;if $flags != null &amp;&amp; $flags.playerCard == true&gt;&gt;\
+&lt;&lt;/widget&gt;&gt;</tw-passagedata><tw-passagedata pid="23" name="StoryMenu" tags="" position="350,350" size="100,100">&lt;&lt;if $flags != null &amp;&amp; $flags.playerCard == true&gt;&gt;\
 	&lt;&lt;link &quot;Player Card&quot;&gt;&gt;&lt;&lt;showPlayerCard&gt;&gt;&lt;&lt;/link&gt;&gt;
 &lt;&lt;/if&gt;&gt;</tw-passagedata></tw-storydata>
 	<script id="script-sugarcube" type="text/javascript">
