@@ -1,6 +1,6 @@
 # Change Log
 
-## [0.2.0] - 2022-01-12
+## [0.2.0] - 2022-01-15
 
 ### Added
 - Pull requests and commits to main now cause github to make the build and publish it to github pages.
