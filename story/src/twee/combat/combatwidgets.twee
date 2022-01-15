@@ -9,9 +9,8 @@
     	opponent.maxhp = 3;
     	opponent.damage = 1;
 
-    	combat.opponents.push(opponent);
-
-        combat.playerTeam.push(State.variables.player.combatant);
+    	combat.addOpponent(opponent.name, opponent);
+        combat.addPlayer("player", State.variables.player.combatant);
 
     	State.variables.combat = combat;
     	State.variables.roundLog = [];

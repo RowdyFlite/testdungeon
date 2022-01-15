@@ -1,26 +1,42 @@
 window.start_combat = function(){
 	let combat = {};
-	combat.playerTeam = [];
-	combat.opponents = [];
+	combat.playerTeam = new Set();
+	combat.opponents = new Set();
+	combat.combatants = {};
 
-	combat.attack = function(defender, damage){
-		defender.hp = Math.max(0, defender.hp - damage);
+	combat.getCombatant = function(id){
+		return this.combatants[id];
+	}
+
+	combat.addPlayer = function(id, combatant){
+		this.combatants[id] = combatant;
+		this.playerTeam.add(id);
+	};
+
+	combat.addOpponent = function(id, combatant){
+		this.combatants[id] = combatant;
+		this.opponents.add(id);
+	};
+
+	combat.attack = function(attackerId, defenderId){
+		let dmg = this.combatants[attackerId].damage;
+		let defender = this.combatants[defenderId];
+		defender.hp = Math.max(0, defender.hp - dmg);
 	};
 
 	combat.tick = function(){
 		let playerAlive = false;
 		let opponentAlive = false;
-		this.playerTeam.forEach(player => {
-			if (player.hp > 0){
+		for (let id of this.playerTeam){
+			if (this.getCombatant(id).hp > 0){
 				playerAlive = true;
 			}
-		});
-
-		this.opponents.forEach(opponent => {
-			if (opponent.hp > 0){
+		}
+		for (let id of this.opponents){
+			if (this.getCombatant(id).hp > 0){
 				opponentAlive = true;
-			}
-		});
+			}		
+		}
 
 		if (!playerAlive){
 			this.finished = true;

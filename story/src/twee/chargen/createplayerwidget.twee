@@ -6,6 +6,7 @@
 			player.name = State.variables.args[0];
 			player.combatant = {};
 			player.combatant.maxhp = 10;
+			player.combatant.damage = 3;
 			player.combatant.hp = player.combatant.maxhp;
 			State.variables.player = player;
 
