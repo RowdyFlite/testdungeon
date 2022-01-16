@@ -3,6 +3,8 @@
 Floor: <<print $floor.id>>
 Room: <<print $room.id>>
 
+<<include "DungeonMap">>
+
 <<if $room.north>>\
 	<<link "North">>
 		<<moveIntoRoom $room.north>>

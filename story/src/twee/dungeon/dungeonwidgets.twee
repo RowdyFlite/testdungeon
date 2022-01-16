@@ -6,6 +6,7 @@
     	State.variables.dungeon = dungeon;
 		State.variables.floor = dungeon.floors[dungeon.current_floor];
 		State.variables.room = dungeon.floors[dungeon.current_floor].rooms[dungeon.current_room];
+		State.variables.explored_rooms = [new Set()];
     <</script>>
 <</widget>>
 
@@ -14,6 +15,7 @@
 		let dungeon = State.variables.dungeon;
 		State.variables.floor = dungeon.floors[dungeon.current_floor];
 		State.variables.room = dungeon.floors[dungeon.current_floor].rooms[dungeon.current_room];
+		State.variables.explored_rooms[dungeon.current_floor].add(dungeon.current_room);
 	<</script>>
 <</widget>>
 
@@ -37,6 +39,9 @@
 		let dungeon = State.variables.dungeon;
 		dungeon.current_floor++;
 		dungeon.current_room = dungeon.floors[dungeon.current_floor].start;
+		if (State.variables.explored_rooms.length <= dungeon.current_floor){
+			State.variables.explored_rooms.push(new Set());
+		}
 	<</script>>
 <</widget>>
 
