@@ -2,5 +2,5 @@
 
 You are in front of an iron doorway surrounded by two guards.
 
-<<link "Enter the dungeon" "Dungeon">><<include "DungeonSetup">><</link>>
+<<link "Enter the dungeon" "Dungeon">><<initDungeon>><</link>>
 <<link "Back to town" "Town">><</link>>

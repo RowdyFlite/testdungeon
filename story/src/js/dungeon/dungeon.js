@@ -15,27 +15,27 @@ function create_room(id){
 }
 
 function create_exit(a, b){
-	coorda = a.id.split(',').map(Number);
-	coordb = b.id.split(',').map(Number);
+	let coorda = a.id.split(',').map(Number);
+	let coordb = b.id.split(',').map(Number);
 
 	if (Math.abs(coorda[0] - coordb[0]) == 1){
 		if (coorda[0] > coordb[0]){
-			a.south = true;
-			b.north = true;
+			a.west = b.id;
+			b.east = a.id;
 		}
 		else{
-			a.north = true;
-			b.south = true;
+			a.east = b.id;
+			b.west = a.id;
 		}
 	}
 	else if (Math.abs(coorda[1] - coordb[1]) == 1){
 		if (coorda[1] > coordb[1]){
-			a.west = true;
-			b.east = true;
+			a.south = b.id;
+			b.north = a.id;
 		}
 		else{
-			a.east = true;
-			b.west = true;
+			a.north = b.id;
+			b.south = a.id;
 		}
 	}
 	else{
@@ -52,9 +52,6 @@ function floor1(){
 
 	create_exit(rooms["0,0"], rooms["0,1"]);
 	create_exit(rooms["0,1"], rooms["0,2"]);
-
-	// invalid - for testing only
-	create_exit(rooms["0,0"], rooms["0,2"]);
 
 	rooms["0,0"].start = true;
 	rooms["0,2"].end = true;
@@ -85,14 +82,21 @@ function floor2(){
 function floor3(){
 	let rooms = {};
 
-	rooms["0,0"] = create_room();
-	rooms["1,0"] = create_room();
-	rooms["2,0"] = create_room();
-	rooms["3,0"] = create_room();
-	rooms["3,-1"] = create_room();
-	rooms["3,-2"] = create_room();
-	rooms["2,-2"] = create_room();
-	rooms["2,-1"] = create_room();
+	rooms["0,0"] = create_room("0,0");
+	rooms["1,0"] = create_room("1,0");
+	rooms["2,0"] = create_room("2,0");
+	rooms["3,0"] = create_room("3,0");
+	rooms["3,-1"] = create_room("3,-1");
+	rooms["3,-2"] = create_room("3,-2");
+	rooms["2,-2"] = create_room("2,-2");
+	rooms["2,-1"] = create_room("2,-1");
+
+	create_exit(rooms["0,0"], rooms["1,0"]);
+	create_exit(rooms["1,0"], rooms["2,0"]);
+	create_exit(rooms["2,0"], rooms["3,0"]);
+	create_exit(rooms["3,-1"], rooms["3,-2"]);
+	create_exit(rooms["3,-2"], rooms["2,-2"]);
+	create_exit(rooms["2,-2"], rooms["2,-1"]);
 
 	rooms["0,0"].start = true;
 	rooms["2,-1"].end = true;
@@ -106,4 +110,10 @@ window.init_dungeon = function(){
 	floors.push(floor1());
 	floors.push(floor2());
 	floors.push(floor3());
+
+	return {
+		floors: floors,
+		current_floor: 0,
+		current_room: "0,0"
+	}
 }

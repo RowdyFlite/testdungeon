@@ -1,0 +1,33 @@
+::DungeonWidgets [widget]
+
+<<widget "initDungeon">>
+    <<script>>
+    	let dungeon = window.init_dungeon();
+    	State.variables.dungeon = dungeon;
+		State.variables.floor = dungeon.floors[dungeon.current_floor];
+		State.variables.room = dungeon.floors[dungeon.current_floor].rooms[dungeon.current_room];
+    <</script>>
+<</widget>>
+
+<<widget "tickDungeon">>
+	<<script>>
+		let dungeon = State.variables.dungeon;
+		State.variables.floor = dungeon.floors[dungeon.current_floor];
+		State.variables.room = dungeon.floors[dungeon.current_floor].rooms[dungeon.current_room];
+	<</script>>
+<</widget>>
+
+<<widget "exitDungeon">>
+	<<script>>
+		State.variables.dungeon = null;
+		State.variables.floor = null;
+		State.variables.room = null;
+	<</script>>
+<</widget>>
+
+<<widget "moveIntoRoom">>
+	<<script>>
+		let newRoomId = State.variables.args[0];
+		State.variables.dungeon.current_room = newRoomId;
+	<</script>>
+<</widget>>
