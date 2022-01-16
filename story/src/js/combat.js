@@ -18,6 +18,12 @@ window.start_combat = function(){
 		this.opponents.add(id);
 	};
 
+	combat.addOpponents = function(combatants){
+		for (const opponent in combatants){
+			this.addOpponent(opponent.id, opponent);
+		}
+	};
+
 	combat.attack = function(attackerId, defenderId){
 		let dmg = this.combatants[attackerId].damage;
 		let defender = this.combatants[defenderId];

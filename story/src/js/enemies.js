@@ -22,3 +22,19 @@ setup.init_enemies = function(){
 
 	setup.enemy_map = enemy_map;
 }
+
+setup.create_enemy_party = function(tag_map){
+	let counter = 0;
+	let party = [];
+
+	for (const tag in tag_map) {
+		let template = setup.enemy_map[tag];
+		for (let i = 0; i < tag_map[tag]; i++){
+			let id = tag + counter++;
+			let enemy = Object.assign({}, template);
+			enemy.id = id;
+			party.push(enemy);
+		}
+	}
+	return party;
+}
