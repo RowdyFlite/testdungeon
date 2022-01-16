@@ -1,5 +1,7 @@
-function create_floor(id, rooms){
-	return {id: id, rooms: rooms};
+function create_floor(id, rooms, start, end){
+	rooms[start].start = true;
+	rooms[end].end = true;
+	return {id: id, rooms: rooms, start: start, end: end};
 }
 
 function create_room(id){
@@ -53,10 +55,7 @@ function floor1(){
 	create_exit(rooms["0,0"], rooms["0,1"]);
 	create_exit(rooms["0,1"], rooms["0,2"]);
 
-	rooms["0,0"].start = true;
-	rooms["0,2"].end = true;
-
-	return create_floor(1, rooms);
+	return create_floor(1, rooms, "0,0", "0,2");
 }
 
 function floor2(){
@@ -73,10 +72,7 @@ function floor2(){
 	create_exit(rooms["0,1"], rooms["-1,1"]);
 	create_exit(rooms["0,1"], rooms["1,1"]);
 
-	rooms["0,0"].start = true;
-	rooms["0,2"].end = true;
-
-	return create_floor(1, rooms);
+	return create_floor(2, rooms, "0,0", "0,2");
 }
 
 function floor3(){
@@ -98,10 +94,7 @@ function floor3(){
 	create_exit(rooms["3,-2"], rooms["2,-2"]);
 	create_exit(rooms["2,-2"], rooms["2,-1"]);
 
-	rooms["0,0"].start = true;
-	rooms["2,-1"].end = true;
-
-	return create_floor(1, rooms);
+	return create_floor(3, rooms, "0,0", "2,-1");
 }
 
 window.init_dungeon = function(){
@@ -111,9 +104,12 @@ window.init_dungeon = function(){
 	floors.push(floor2());
 	floors.push(floor3());
 
+
+
 	return {
 		floors: floors,
 		current_floor: 0,
-		current_room: "0,0"
+		current_room: "0,0",
+		max_floor: floors.length
 	}
 }

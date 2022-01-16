@@ -31,3 +31,19 @@
 		State.variables.dungeon.current_room = newRoomId;
 	<</script>>
 <</widget>>
+
+<<widget "goToNextFloor">>
+	<<script>>
+		let dungeon = State.variables.dungeon;
+		dungeon.current_floor++;
+		dungeon.current_room = dungeon.floors[dungeon.current_floor].start;
+	<</script>>
+<</widget>>
+
+<<widget "goToPrevFloor">>
+	<<script>>
+		let dungeon = State.variables.dungeon;
+		dungeon.current_floor--;
+		dungeon.current_room = dungeon.floors[dungeon.current_floor].end;	
+	<</script>>
+<</widget>>

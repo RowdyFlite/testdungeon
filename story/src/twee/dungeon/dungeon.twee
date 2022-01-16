@@ -27,3 +27,24 @@ Room: <<print $room.id>>
 		<<goto "Dungeon">>
 	<</link>>
 <</if>>
+<<if $room.start>>\
+	<<if $floor.id == 1>>
+		<<link "Exit Dungeon">>
+			<<exitDungeon>>
+			<<goto "DungeonEntrance">>
+		<</link>>
+	<<else>>
+		<<link "Previous Floor">>
+			<<goToPrevFloor>>
+			<<goto "Dungeon">>
+		<</link>>
+	<</if>>
+<</if>>
+<<if $room.end>>\
+	<<if $floor.id != $dungeon.max_floor>>
+		<<link "Next Floor">>
+			<<goToNextFloor>>
+			<<goto "Dungeon">>
+		<</link>>
+	<</if>>
+<</if>>
