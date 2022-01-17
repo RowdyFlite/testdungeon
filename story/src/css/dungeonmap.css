@@ -1,0 +1,21 @@
+.map {
+  height:  260px;
+  width:  260px;
+  border:  5px solid black;
+  background-color: White;
+}
+
+.box {
+  height: 50px;
+  width: 50px;
+  border: 1px solid black;
+  clear: both;
+}
+
+.unexploredRoom {
+  background-color: DarkSlateGray;
+}
+
+.exploredRoom {
+  background-color: Gray;
+}
