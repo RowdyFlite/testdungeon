@@ -3,7 +3,7 @@
 
 <<print $current_room.short_desc>>
 
-<<if $current_room.event == null>>\
+<<if $current_room.encounter == null>>\
 	<<include "DungeonCrawl">>
 <<else>>\
 	<<include "Event">>

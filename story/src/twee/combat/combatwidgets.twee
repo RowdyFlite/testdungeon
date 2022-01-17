@@ -3,13 +3,8 @@
     <<script>>
         let combat = window.start_combat();
 
-    	let opponent = {};
-    	opponent.name = "goblin";
-    	opponent.hp = 3;
-    	opponent.maxhp = 3;
-    	opponent.damage = 1;
-
-    	combat.addOpponent(opponent.name, opponent);
+        let opponents = setup.create_enemy_party(State.variables.args[0]);
+    	combat.addOpponents(opponents);
         combat.addPlayer("player", State.variables.player.combatant);
 
     	State.variables.combat = combat;

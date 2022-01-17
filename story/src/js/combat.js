@@ -18,9 +18,18 @@ window.start_combat = function(){
 		this.opponents.add(id);
 	};
 
+	combat.addOpponents = function(combatants){
+		for (const opponent of combatants){
+			this.addOpponent(opponent.id, opponent);
+		}
+	};
+
 	combat.attack = function(attackerId, defenderId){
-		let dmg = this.combatants[attackerId].damage;
 		let defender = this.combatants[defenderId];
+
+		let dmg = this.combatants[attackerId].att - defender.def;
+		dmg = Math.max(0, dmg);
+
 		defender.hp = Math.max(0, defender.hp - dmg);
 	};
 

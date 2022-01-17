@@ -1,7 +1,7 @@
-function create_floor(id, rooms, start, end){
+function create_floor(id, rooms, start, end, encounter_table){
 	rooms[start].start = true;
 	rooms[end].end = true;
-	return {id: id, rooms: rooms, start: start, end: end};
+	return {id: id, rooms: rooms, start: start, end: end, encounter_table: encounter_table};
 }
 
 function create_room(id){
@@ -12,7 +12,8 @@ function create_room(id){
 		west: null,
 		south: null,
 		start: false,
-		end: false
+		end: false,
+		encounter: null
 	};
 }
 
@@ -55,7 +56,27 @@ function floor1(){
 	create_exit(rooms["0,0"], rooms["0,1"]);
 	create_exit(rooms["0,1"], rooms["0,2"]);
 
-	return create_floor(1, rooms, "0,0", "0,2");
+	let encounter_table = [];
+	encounter_table.push({
+		chance: 5,
+		tags: {
+			"rat": 1
+		}
+	});
+	encounter_table.push({
+		chance: 2,
+		tags: {
+			"rat": 2
+		}
+	});
+	encounter_table.push({
+		chance: 1,
+		tags: {
+			"kobold": 2
+		}
+	});
+
+	return create_floor(1, rooms, "0,0", "0,2", encounter_table);
 }
 
 function floor2(){
@@ -72,7 +93,27 @@ function floor2(){
 	create_exit(rooms["0,1"], rooms["-1,1"]);
 	create_exit(rooms["0,1"], rooms["1,1"]);
 
-	return create_floor(2, rooms, "0,0", "0,2");
+	let encounter_table = [];
+	encounter_table.push({
+		chance: 5,
+		tags: {
+			"goblin": 1
+		}
+	});
+	encounter_table.push({
+		chance: 2,
+		tags: {
+			"goblin": 2
+		}
+	});
+	encounter_table.push({
+		chance: 1,
+		tags: {
+			"goblin": 3
+		}
+	});
+
+	return create_floor(2, rooms, "0,0", "0,2", encounter_table);
 }
 
 function floor3(){
@@ -94,7 +135,44 @@ function floor3(){
 	create_exit(rooms["3,-2"], rooms["2,-2"]);
 	create_exit(rooms["2,-2"], rooms["2,-1"]);
 
-	return create_floor(3, rooms, "0,0", "2,-1");
+	let encounter_table = [];
+	encounter_table.push({
+		chance: 5,
+		tags: {
+			"goblin": 3
+		}
+	});
+	encounter_table.push({
+		chance: 1,
+		tags: {
+			"goblin": 2,
+			"goblin shaman": 1
+		}
+	});
+
+	return create_floor(3, rooms, "0,0", "2,-1", encounter_table);
+}
+
+window.init_encounters = function(floor){
+	let encounter_chance = .5;
+
+	let total = 0;
+	for (const encounter of floor.encounter_table){
+		total += encounter.chance;
+	}
+
+	for (const room_id in floor.rooms){
+
+		let room = floor.rooms[room_id];
+		if (!room.start && !room.end && Math.random() < encounter_chance){
+			let roll = Math.floor(Math.random() * total);
+			for (const encounter of floor.encounter_table){
+				if (roll <= encounter.chance){
+					room.encounter = encounter.tags;
+				}
+			}
+		}
+	}
 }
 
 window.init_dungeon = function(){
