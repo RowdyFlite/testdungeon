@@ -1,11 +1,52 @@
 :: Dungeon
-<<print $current_room.name>>(<<print $current_room.id>>)
+<<tickDungeon>>\
+Floor: <<print $floor.id>>
+Room: <<print $room.id>>
 
-<<print $current_room.short_desc>>
+<<include "DungeonMap">>
 
-<<if $current_room.event == null>>\
-	<<include "DungeonCrawl">>
-<<else>>\
-	<<include "Event">>
-<</if>>\
-
+<<if $room.north>>\
+	<<link "North">>
+		<<moveIntoRoom $room.north>>
+		<<goto "Dungeon">>
+	<</link>>
+<</if>>
+<<if $room.south>>\
+	<<link "South">>
+		<<moveIntoRoom $room.south>>
+		<<goto "Dungeon">>
+	<</link>>
+<</if>>
+<<if $room.east>>\
+	<<link "East">>
+		<<moveIntoRoom $room.east>>
+		<<goto "Dungeon">>
+	<</link>>
+<</if>>
+<<if $room.west>>\
+	<<link "West">>
+		<<moveIntoRoom $room.west>>
+		<<goto "Dungeon">>
+	<</link>>
+<</if>>
+<<if $room.start>>\
+	<<if $floor.id == 1>>
+		<<link "Exit Dungeon">>
+			<<exitDungeon>>
+			<<goto "DungeonEntrance">>
+		<</link>>
+	<<else>>
+		<<link "Previous Floor">>
+			<<goToPrevFloor>>
+			<<goto "Dungeon">>
+		<</link>>
+	<</if>>
+<</if>>
+<<if $room.end>>\
+	<<if $floor.id != $dungeon.max_floor>>
+		<<link "Next Floor">>
+			<<goToNextFloor>>
+			<<goto "Dungeon">>
+		<</link>>
+	<</if>>
+<</if>>

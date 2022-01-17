@@ -1,0 +1,6 @@
+:: DungeonMap
+<div class='map'>
+	<<for _i, _id range $explored_rooms[$dungeon.current_floor]>>\
+		<div class='box exploredRoom'>_id</div>
+	<</for>>
+</div>

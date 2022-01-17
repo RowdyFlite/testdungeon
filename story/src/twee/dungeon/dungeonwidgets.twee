@@ -1,0 +1,54 @@
+::DungeonWidgets [widget]
+
+<<widget "initDungeon">>
+    <<script>>
+    	let dungeon = window.init_dungeon();
+    	State.variables.dungeon = dungeon;
+		State.variables.floor = dungeon.floors[dungeon.current_floor];
+		State.variables.room = dungeon.floors[dungeon.current_floor].rooms[dungeon.current_room];
+		State.variables.explored_rooms = [new Set()];
+    <</script>>
+<</widget>>
+
+<<widget "tickDungeon">>
+	<<script>>
+		let dungeon = State.variables.dungeon;
+		State.variables.floor = dungeon.floors[dungeon.current_floor];
+		State.variables.room = dungeon.floors[dungeon.current_floor].rooms[dungeon.current_room];
+		State.variables.explored_rooms[dungeon.current_floor].add(dungeon.current_room);
+	<</script>>
+<</widget>>
+
+<<widget "exitDungeon">>
+	<<script>>
+		State.variables.dungeon = null;
+		State.variables.floor = null;
+		State.variables.room = null;
+	<</script>>
+<</widget>>
+
+<<widget "moveIntoRoom">>
+	<<script>>
+		let newRoomId = State.variables.args[0];
+		State.variables.dungeon.current_room = newRoomId;
+	<</script>>
+<</widget>>
+
+<<widget "goToNextFloor">>
+	<<script>>
+		let dungeon = State.variables.dungeon;
+		dungeon.current_floor++;
+		dungeon.current_room = dungeon.floors[dungeon.current_floor].start;
+		if (State.variables.explored_rooms.length <= dungeon.current_floor){
+			State.variables.explored_rooms.push(new Set());
+		}
+	<</script>>
+<</widget>>
+
+<<widget "goToPrevFloor">>
+	<<script>>
+		let dungeon = State.variables.dungeon;
+		dungeon.current_floor--;
+		dungeon.current_room = dungeon.floors[dungeon.current_floor].end;	
+	<</script>>
+<</widget>>
