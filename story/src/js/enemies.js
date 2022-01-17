@@ -4,6 +4,7 @@ function build_enemy(map, tag, hp, mp, att, def, xp){
 	map[tag] = {
 		tag: tag,
 		hp: hp,
+		maxhp: hp,
 		mp: mp,
 		att: att,
 		def: def,

@@ -8,7 +8,6 @@
         opponent_tags["rat"] = 2;
 
         let opponents = setup.create_enemy_party(opponent_tags);
-        window.alert("Created " + opponents.length + " opponenets.");
     	combat.addOpponents(opponents);
         combat.addPlayer("player", State.variables.player.combatant);
 
