@@ -139,9 +139,18 @@ window.start_combat = function(){
 		this.opponents.add(id);
 	};
 
+	combat.addOpponents = function(combatants){
+		for (const opponent of combatants){
+			this.addOpponent(opponent.id, opponent);
+		}
+	};
+
 	combat.attack = function(attackerId, defenderId){
-		let dmg = this.combatants[attackerId].damage;
 		let defender = this.combatants[defenderId];
+
+		let dmg = this.combatants[attackerId].att - defender.def;
+		dmg = Math.max(0, dmg);
+
 		defender.hp = Math.max(0, defender.hp - dmg);
 	};
 
@@ -177,10 +186,10 @@ window.start_combat = function(){
 	return combat;
 }
 /* twine-user-script #2: "dungeon.js" */
-function create_floor(id, rooms, start, end){
+function create_floor(id, rooms, start, end, encounter_table){
 	rooms[start].start = true;
 	rooms[end].end = true;
-	return {id: id, rooms: rooms, start: start, end: end};
+	return {id: id, rooms: rooms, start: start, end: end, encounter_table: encounter_table};
 }
 
 function create_room(id){
@@ -191,7 +200,8 @@ function create_room(id){
 		west: null,
 		south: null,
 		start: false,
-		end: false
+		end: false,
+		encounter: null
 	};
 }
 
@@ -234,7 +244,27 @@ function floor1(){
 	create_exit(rooms["0,0"], rooms["0,1"]);
 	create_exit(rooms["0,1"], rooms["0,2"]);
 
-	return create_floor(1, rooms, "0,0", "0,2");
+	let encounter_table = [];
+	encounter_table.push({
+		chance: 5,
+		tags: {
+			"rat": 1
+		}
+	});
+	encounter_table.push({
+		chance: 2,
+		tags: {
+			"rat": 2
+		}
+	});
+	encounter_table.push({
+		chance: 1,
+		tags: {
+			"kobold": 2
+		}
+	});
+
+	return create_floor(1, rooms, "0,0", "0,2", encounter_table);
 }
 
 function floor2(){
@@ -251,7 +281,27 @@ function floor2(){
 	create_exit(rooms["0,1"], rooms["-1,1"]);
 	create_exit(rooms["0,1"], rooms["1,1"]);
 
-	return create_floor(2, rooms, "0,0", "0,2");
+	let encounter_table = [];
+	encounter_table.push({
+		chance: 5,
+		tags: {
+			"goblin": 1
+		}
+	});
+	encounter_table.push({
+		chance: 2,
+		tags: {
+			"goblin": 2
+		}
+	});
+	encounter_table.push({
+		chance: 1,
+		tags: {
+			"goblin": 3
+		}
+	});
+
+	return create_floor(2, rooms, "0,0", "0,2", encounter_table);
 }
 
 function floor3(){
@@ -273,7 +323,44 @@ function floor3(){
 	create_exit(rooms["3,-2"], rooms["2,-2"]);
 	create_exit(rooms["2,-2"], rooms["2,-1"]);
 
-	return create_floor(3, rooms, "0,0", "2,-1");
+	let encounter_table = [];
+	encounter_table.push({
+		chance: 5,
+		tags: {
+			"goblin": 3
+		}
+	});
+	encounter_table.push({
+		chance: 1,
+		tags: {
+			"goblin": 2,
+			"goblin shaman": 1
+		}
+	});
+
+	return create_floor(3, rooms, "0,0", "2,-1", encounter_table);
+}
+
+window.init_encounters = function(floor){
+	let encounter_chance = .5;
+
+	let total = 0;
+	for (const encounter of floor.encounter_table){
+		total += encounter.chance;
+	}
+
+	for (const room_id in floor.rooms){
+
+		let room = floor.rooms[room_id];
+		if (!room.start && !room.end && Math.random() < encounter_chance){
+			let roll = Math.floor(Math.random() * total);
+			for (const encounter of floor.encounter_table){
+				if (roll <= encounter.chance){
+					room.encounter = encounter.tags;
+				}
+			}
+		}
+	}
 }
 
 window.init_dungeon = function(){
@@ -295,6 +382,48 @@ window.init_dungeon = function(){
 /* twine-user-script #3: "dungeon_init.js" */
 window.start_dungeon = function(){
 	
+}
+/* twine-user-script #4: "enemies.js" */
+// set up the dict of enemies.
+
+function build_enemy(map, tag, hp, mp, att, def, xp){
+	map[tag] = {
+		tag: tag,
+		hp: hp,
+		maxhp: hp,
+		mp: mp,
+		att: att,
+		def: def,
+		xp: xp
+	}
+}
+
+
+setup.init_enemies = function(){
+	let enemy_map = {};
+
+	build_enemy(enemy_map, "rat", 1, 0, 1, 0, 1);
+	build_enemy(enemy_map, "kobold", 3, 0, 2, 0, 2);
+	build_enemy(enemy_map, "goblin", 5, 0, 3, 1, 4);
+	build_enemy(enemy_map, "goblin shaman", 1, 5, 1, 0, 3);
+
+	setup.enemy_map = enemy_map;
+}
+
+setup.create_enemy_party = function(tag_map){
+	let counter = 0;
+	let party = [];
+
+	for (const tag in tag_map) {
+		let template = setup.enemy_map[tag];
+		for (let i = 0; i < tag_map[tag]; i++){
+			let id = tag + counter++;
+			let enemy = Object.assign({}, template);
+			enemy.id = id;
+			party.push(enemy);
+		}
+	}
+	return party;
 }</script><tw-passagedata pid="1" name="Chargen" tags="" position="100,100" size="100,100">What is your name?&lt;&lt;textbox &quot;_name&quot; &quot;&quot; autofocus&gt;&gt;
 
 &lt;&lt;link &quot;Continue&quot;&gt;&gt;
@@ -313,7 +442,8 @@ window.start_dungeon = function(){
 			player.name = State.variables.args[0];
 			player.combatant = {};
 			player.combatant.maxhp = 10;
-			player.combatant.damage = 3;
+			player.combatant.att = 3;
+			player.combatant.def = 0;
 			player.combatant.hp = player.combatant.maxhp;
 			State.variables.player = player;
 
@@ -346,7 +476,9 @@ You&#39;ve been isekai&#39;d!
 &lt;&lt;/for&gt;&gt;
 &lt;&lt;set $roundLog=[]&gt;&gt;\</tw-passagedata><tw-passagedata pid="6" name="CombatWin" tags="" position="725,100" size="100,100">&lt;&lt;link &quot;You won!&quot; &quot;Explore&quot;&gt;&gt;
 	&lt;&lt;set $current_room.event = null&gt;&gt;
-&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="7" name="CombatLoss" tags="" position="850,100" size="100,100">&lt;&lt;link &quot;Lose&quot; &quot;Die&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="8" name="CombatActions" tags="" position="975,100" size="100,100">Your HP: _player.hp/_player.maxhp
+&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="7" name="CombatLoss" tags="" position="850,100" size="100,100">You have been defeated!
+
+&lt;&lt;link &quot;Lose&quot; &quot;Die&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="8" name="CombatActions" tags="" position="975,100" size="100,100">Your HP: _player.hp/_player.maxhp
 Opponents:
 	&lt;&lt;for _i, _id range $combat.opponents&gt;&gt;\
 		&lt;&lt;set _enemy=$combat.getCombatant(_id)&gt;&gt;
@@ -354,9 +486,7 @@ Opponents:
 	  	&lt;&lt;capture _enemy&gt;&gt;\
 	  		&lt;&lt;if _enemy.hp &gt; 0&gt;&gt;\
 		  		&lt;&lt;button &quot;Attack&quot;&gt;&gt;\
-		  			&lt;&lt;set _dmg = 3&gt;&gt;
-		  			&lt;&lt;run $roundLog.push(`Attacked ${_enemy.name} for ${_dmg} damage!`)&gt;&gt;
-		  			&lt;&lt;run $combat.attack(&quot;player&quot;, _enemy.name)&gt;&gt;
+		  			&lt;&lt;run $combat.attack(&quot;player&quot;, _enemy.id)&gt;&gt;
 		  			&lt;&lt;goto &quot;Combat&quot;&gt;&gt;
 		  		&lt;&lt;/button&gt;&gt;
 		  		&lt;&lt;print &quot;_enemy.name _enemy.hp/_enemy.maxhp&quot;&gt;&gt;
@@ -372,20 +502,14 @@ Opponents:
 	&lt;&lt;for _i, _id range $combat.opponents&gt;&gt;\
 		&lt;&lt;set _enemy=$combat.getCombatant(_id)&gt;&gt;
 		&lt;&lt;if _enemy.hp &gt; 0&gt;&gt;
-			&lt;&lt;run $combat.attack(_enemy.name, &quot;player&quot;)&gt;&gt;
-			&lt;&lt;run $roundLog.push(`${_enemy.name} attacked you and did ${_enemy.damage} damage!`)&gt;&gt;
+			&lt;&lt;run $combat.attack(_enemy.id, &quot;player&quot;)&gt;&gt;
 		&lt;&lt;/if&gt;&gt;
 	&lt;&lt;/for&gt;&gt;</tw-passagedata><tw-passagedata pid="9" name="CombatWidgets" tags="widget" position="1100,100" size="100,100">&lt;&lt;widget &quot;startCombat&quot;&gt;&gt;\
     &lt;&lt;script&gt;&gt;
         let combat = window.start_combat();
 
-    	let opponent = {};
-    	opponent.name = &quot;goblin&quot;;
-    	opponent.hp = 3;
-    	opponent.maxhp = 3;
-    	opponent.damage = 1;
-
-    	combat.addOpponent(opponent.name, opponent);
+        let opponents = setup.create_enemy_party(State.variables.args[0]);
+    	combat.addOpponents(opponents);
         combat.addPlayer(&quot;player&quot;, State.variables.player.combatant);
 
     	State.variables.combat = combat;
@@ -394,55 +518,60 @@ Opponents:
 &lt;&lt;/widget&gt;&gt;</tw-passagedata><tw-passagedata pid="10" name="Die" tags="" position="1225,100" size="100,100">You lost a fight! You black out and reawaken in town.
 
 &lt;&lt;link &quot;Town&quot; &quot;Town&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="11" name="Dungeon" tags="" position="100,225" size="100,100">&lt;&lt;tickDungeon&gt;&gt;\
-Floor: &lt;&lt;print $floor.id&gt;&gt;
-Room: &lt;&lt;print $room.id&gt;&gt;
 
-&lt;&lt;include &quot;DungeonMap&quot;&gt;&gt;
+&lt;&lt;if $room.encounter == null&gt;&gt;\
+	Floor: &lt;&lt;print $floor.id&gt;&gt;
+	Room: &lt;&lt;print $room.id&gt;&gt;
 
-&lt;&lt;if $room.north&gt;&gt;\
-	&lt;&lt;link &quot;North&quot;&gt;&gt;
-		&lt;&lt;moveIntoRoom $room.north&gt;&gt;
-		&lt;&lt;goto &quot;Dungeon&quot;&gt;&gt;
-	&lt;&lt;/link&gt;&gt;
-&lt;&lt;/if&gt;&gt;
-&lt;&lt;if $room.south&gt;&gt;\
-	&lt;&lt;link &quot;South&quot;&gt;&gt;
-		&lt;&lt;moveIntoRoom $room.south&gt;&gt;
-		&lt;&lt;goto &quot;Dungeon&quot;&gt;&gt;
-	&lt;&lt;/link&gt;&gt;
-&lt;&lt;/if&gt;&gt;
-&lt;&lt;if $room.east&gt;&gt;\
-	&lt;&lt;link &quot;East&quot;&gt;&gt;
-		&lt;&lt;moveIntoRoom $room.east&gt;&gt;
-		&lt;&lt;goto &quot;Dungeon&quot;&gt;&gt;
-	&lt;&lt;/link&gt;&gt;
-&lt;&lt;/if&gt;&gt;
-&lt;&lt;if $room.west&gt;&gt;\
-	&lt;&lt;link &quot;West&quot;&gt;&gt;
-		&lt;&lt;moveIntoRoom $room.west&gt;&gt;
-		&lt;&lt;goto &quot;Dungeon&quot;&gt;&gt;
-	&lt;&lt;/link&gt;&gt;
-&lt;&lt;/if&gt;&gt;
-&lt;&lt;if $room.start&gt;&gt;\
-	&lt;&lt;if $floor.id == 1&gt;&gt;
-		&lt;&lt;link &quot;Exit Dungeon&quot;&gt;&gt;
-			&lt;&lt;exitDungeon&gt;&gt;
-			&lt;&lt;goto &quot;DungeonEntrance&quot;&gt;&gt;
-		&lt;&lt;/link&gt;&gt;
-	&lt;&lt;else&gt;&gt;
-		&lt;&lt;link &quot;Previous Floor&quot;&gt;&gt;
-			&lt;&lt;goToPrevFloor&gt;&gt;
+	&lt;&lt;include &quot;DungeonMap&quot;&gt;&gt;
+
+	&lt;&lt;if $room.north&gt;&gt;\
+		&lt;&lt;link &quot;North&quot;&gt;&gt;
+			&lt;&lt;moveIntoRoom $room.north&gt;&gt;
 			&lt;&lt;goto &quot;Dungeon&quot;&gt;&gt;
 		&lt;&lt;/link&gt;&gt;
 	&lt;&lt;/if&gt;&gt;
-&lt;&lt;/if&gt;&gt;
-&lt;&lt;if $room.end&gt;&gt;\
-	&lt;&lt;if $floor.id != $dungeon.max_floor&gt;&gt;
-		&lt;&lt;link &quot;Next Floor&quot;&gt;&gt;
-			&lt;&lt;goToNextFloor&gt;&gt;
+	&lt;&lt;if $room.south&gt;&gt;\
+		&lt;&lt;link &quot;South&quot;&gt;&gt;
+			&lt;&lt;moveIntoRoom $room.south&gt;&gt;
 			&lt;&lt;goto &quot;Dungeon&quot;&gt;&gt;
 		&lt;&lt;/link&gt;&gt;
 	&lt;&lt;/if&gt;&gt;
+	&lt;&lt;if $room.east&gt;&gt;\
+		&lt;&lt;link &quot;East&quot;&gt;&gt;
+			&lt;&lt;moveIntoRoom $room.east&gt;&gt;
+			&lt;&lt;goto &quot;Dungeon&quot;&gt;&gt;
+		&lt;&lt;/link&gt;&gt;
+	&lt;&lt;/if&gt;&gt;
+	&lt;&lt;if $room.west&gt;&gt;\
+		&lt;&lt;link &quot;West&quot;&gt;&gt;
+			&lt;&lt;moveIntoRoom $room.west&gt;&gt;
+			&lt;&lt;goto &quot;Dungeon&quot;&gt;&gt;
+		&lt;&lt;/link&gt;&gt;
+	&lt;&lt;/if&gt;&gt;
+	&lt;&lt;if $room.start&gt;&gt;\
+		&lt;&lt;if $floor.id == 1&gt;&gt;
+			&lt;&lt;link &quot;Exit Dungeon&quot;&gt;&gt;
+				&lt;&lt;exitDungeon&gt;&gt;
+				&lt;&lt;goto &quot;DungeonEntrance&quot;&gt;&gt;
+			&lt;&lt;/link&gt;&gt;
+		&lt;&lt;else&gt;&gt;
+			&lt;&lt;link &quot;Previous Floor&quot;&gt;&gt;
+				&lt;&lt;goToPrevFloor&gt;&gt;
+				&lt;&lt;goto &quot;Dungeon&quot;&gt;&gt;
+			&lt;&lt;/link&gt;&gt;
+		&lt;&lt;/if&gt;&gt;
+	&lt;&lt;/if&gt;&gt;
+	&lt;&lt;if $room.end&gt;&gt;\
+		&lt;&lt;if $floor.id != $dungeon.max_floor&gt;&gt;
+			&lt;&lt;link &quot;Next Floor&quot;&gt;&gt;
+				&lt;&lt;goToNextFloor&gt;&gt;
+				&lt;&lt;goto &quot;Dungeon&quot;&gt;&gt;
+			&lt;&lt;/link&gt;&gt;
+		&lt;&lt;/if&gt;&gt;
+	&lt;&lt;/if&gt;&gt;
+&lt;&lt;else&gt;&gt;
+	&lt;&lt;include &quot;Event&quot;&gt;&gt;
 &lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="12" name="DungeonCrawl" tags="" position="225,225" size="100,100">&lt;&lt;print $current_room.desc&gt;&gt;
 
 &lt;&lt;for _i, _exit range $current_room.exits&gt;&gt;\
@@ -459,10 +588,23 @@ Room: &lt;&lt;print $room.id&gt;&gt;
 &lt;/div&gt;</tw-passagedata><tw-passagedata pid="14" name="DungeonWidgets" tags="widget" position="475,225" size="100,100">&lt;&lt;widget &quot;initDungeon&quot;&gt;&gt;
     &lt;&lt;script&gt;&gt;
     	let dungeon = window.init_dungeon();
+
+    	for(const floor of dungeon.floors){
+			window.init_encounters(floor);
+		}
+
     	State.variables.dungeon = dungeon;
 		State.variables.floor = dungeon.floors[dungeon.current_floor];
 		State.variables.room = dungeon.floors[dungeon.current_floor].rooms[dungeon.current_room];
 		State.variables.explored_rooms = [new Set()];
+
+		for(const floor of State.variables.dungeon.floors){
+			for (const room_id in floor.rooms){
+				if (floor.rooms[room_id].encounter != null){
+					window.alert(&quot;Encounter at &quot; + floor.id + &quot; room: &quot; + room_id);
+				}
+			}
+		}
     &lt;&lt;/script&gt;&gt;
 &lt;&lt;/widget&gt;&gt;
 
@@ -507,25 +649,22 @@ Room: &lt;&lt;print $room.id&gt;&gt;
 		dungeon.current_floor--;
 		dungeon.current_room = dungeon.floors[dungeon.current_floor].end;	
 	&lt;&lt;/script&gt;&gt;
-&lt;&lt;/widget&gt;&gt;</tw-passagedata><tw-passagedata pid="15" name="Event" tags="" position="600,225" size="100,100">&lt;&lt;set _evt=$current_room.event&gt;&gt;
+&lt;&lt;/widget&gt;&gt;</tw-passagedata><tw-passagedata pid="15" name="Event" tags="" position="600,225" size="100,100">&lt;&lt;set _evt=$room.encounter&gt;&gt;
 
-&lt;&lt;if _evt.type is &quot;battle&quot;&gt;&gt;\
-	&lt;&lt;link &quot;Combat!&quot; &quot;Combat&quot;&gt;&gt;
-		&lt;&lt;startCombat _evt.id&gt;&gt;
-	&lt;&lt;/link&gt;&gt;
-&lt;&lt;else&gt;&gt;\
-	Couldn&#39;t find switch for event type: _evt.type
-&lt;&lt;endif&gt;&gt;\</tw-passagedata><tw-passagedata pid="16" name="Explore" tags="" position="725,225" size="100,100">&lt;&lt;print $current_room.name&gt;&gt;(&lt;&lt;print $current_room.id&gt;&gt;)
+&lt;&lt;link &quot;Combat!&quot; &quot;Combat&quot;&gt;&gt;
+	&lt;&lt;startCombat _evt&gt;&gt;
+&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="16" name="Explore" tags="" position="725,225" size="100,100">&lt;&lt;print $current_room.name&gt;&gt;(&lt;&lt;print $current_room.id&gt;&gt;)
 
 &lt;&lt;print $current_room.short_desc&gt;&gt;
 
-&lt;&lt;if $current_room.event == null&gt;&gt;\
+&lt;&lt;if $current_room.encounter == null&gt;&gt;\
 	&lt;&lt;include &quot;DungeonCrawl&quot;&gt;&gt;
 &lt;&lt;else&gt;&gt;\
 	&lt;&lt;include &quot;Event&quot;&gt;&gt;
 &lt;&lt;/if&gt;&gt;\</tw-passagedata><tw-passagedata pid="17" name="StoryInit" tags="" position="850,225" size="100,100">&lt;&lt;script&gt;&gt;
-State.prng.init()
-Config.saves.slots = 3;
+	State.prng.init()
+	Config.saves.slots = 3;
+	setup.init_enemies();
 &lt;&lt;/script&gt;&gt;
 &lt;&lt;set $game_version=&quot;0.2.0&quot;&gt;&gt;</tw-passagedata><tw-passagedata pid="18" name="MainMenu" tags="" position="975,225" size="100,100">&lt;&lt;set _title = Story.title&gt;&gt;
 &lt;&lt;print _title&gt;&gt;
