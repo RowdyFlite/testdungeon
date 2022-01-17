@@ -1,5 +1,5 @@
 :: Event
-<<set _evt=$current_room.encounter>>
+<<set _evt=$room.encounter>>
 
 <<link "Combat!" "Combat">>
 	<<startCombat _evt>>

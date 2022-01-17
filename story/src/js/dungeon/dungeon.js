@@ -154,19 +154,21 @@ function floor3(){
 }
 
 window.init_encounters = function(floor){
-	let encounter_chance = 0.5;
+	let encounter_chance = .5;
 
 	let total = 0;
-	for (const encounter in floor.encounter_table){
+	for (const encounter of floor.encounter_table){
 		total += encounter.chance;
 	}
 
-	for (const room of floor.rooms){
-		if (!room.start && !room.end && Math.random < encounter_chance){
-			let roll = Math.random() * total;
-			for (const encounter in floor.encounter_table){
+	for (const room_id in floor.rooms){
+
+		let room = floor.rooms[room_id];
+		if (!room.start && !room.end && Math.random() < encounter_chance){
+			let roll = Math.floor(Math.random() * total);
+			for (const encounter of floor.encounter_table){
 				if (roll <= encounter.chance){
-					encounter = encounter.tags;
+					room.encounter = encounter.tags;
 				}
 			}
 		}
