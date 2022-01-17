@@ -3,11 +3,7 @@
     <<script>>
         let combat = window.start_combat();
 
-    	let opponent_tags = {};
-        opponent_tags["goblin"] = 1;
-        opponent_tags["rat"] = 2;
-
-        let opponents = setup.create_enemy_party(opponent_tags);
+        let opponents = setup.create_enemy_party(State.variables.args[0]);
     	combat.addOpponents(opponents);
         combat.addPlayer("player", State.variables.player.combatant);
 

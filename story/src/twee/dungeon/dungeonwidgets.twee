@@ -4,9 +4,13 @@
     <<script>>
     	let dungeon = window.init_dungeon();
     	State.variables.dungeon = dungeon;
-		State.variables.floor = dungeon.floors[dungeon.current_floor];
+		State.variables.floor = Object.dungeon.floors[dungeon.current_floor];
 		State.variables.room = dungeon.floors[dungeon.current_floor].rooms[dungeon.current_room];
 		State.variables.explored_rooms = [new Set()];
+
+		for(const floor of dungeon.floors){
+			window.init_floor(floor);
+		}
     <</script>>
 <</widget>>
 
