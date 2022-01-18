@@ -1,6 +1,12 @@
 :: DungeonMap
 <div class='map'>
+	<<set _offsets = $room.id.split(',').map(Number)>>
+
 	<<for _i, _id range $explored_rooms[$dungeon.current_floor]>>\
-		<div class='box exploredRoom'>_id</div>
+		<<set _coords = _id.split(',').map(Number)>>\
+		<<set _coords = [_coords[0] - _offsets[0], _offsets[1] - _coords[1]]>> \
+		<<set _x = (_coords[0] * 50) + 130>>\
+		<<set _y = (_coords[1] * 50) + 130>>\
+		<<print `<div style="left:${_x}px; top:${_y}px" class="box exploredRoom">${_id}</div>`>>
 	<</for>>
 </div>
