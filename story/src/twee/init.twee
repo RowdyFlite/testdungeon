@@ -1,7 +1,7 @@
 ::StoryInit
 <<script>>
-	State.prng.init()
 	Config.saves.slots = 3;
 	setup.init_enemies();
 <</script>>
-<<set $game_version="0.2.0">>
+<<set $explored_rooms = [new Set()]>>
+<<set $game_version="0.3.0">>

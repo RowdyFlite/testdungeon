@@ -5,13 +5,12 @@
     	let dungeon = window.init_dungeon();
 
     	for(const floor of dungeon.floors){
-			window.init_encounters(floor);
+			
 		}
 
     	State.variables.dungeon = dungeon;
 		State.variables.floor = dungeon.floors[dungeon.current_floor];
 		State.variables.room = dungeon.floors[dungeon.current_floor].rooms[dungeon.current_room];
-		State.variables.explored_rooms = [new Set()];
     <</script>>
 <</widget>>
 
@@ -43,6 +42,7 @@
 	<<script>>
 		let dungeon = State.variables.dungeon;
 		dungeon.current_floor++;
+		window.init_encounters(dungeon.floors[dungeon.current_floor]);
 		dungeon.current_room = dungeon.floors[dungeon.current_floor].start;
 		if (State.variables.explored_rooms.length <= dungeon.current_floor){
 			State.variables.explored_rooms.push(new Set());
