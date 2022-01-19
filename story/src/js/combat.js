@@ -31,6 +31,14 @@ window.start_combat = function(){
 		dmg = Math.max(0, dmg);
 
 		defender.hp = Math.max(0, defender.hp - dmg);
+		if (State.variables.roundLog != null){
+			if (defender.hp == 0){
+				State.variables.roundLog.push(`${attackerId} attacked ${defenderId} and killed it.<br>`);
+			}
+			else{
+				State.variables.roundLog.push(`${attackerId} attacked ${defenderId} and did ${dmg} damage.<br>`);
+			}
+		}
 	};
 
 	combat.tick = function(){
