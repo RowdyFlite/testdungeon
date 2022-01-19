@@ -6,6 +6,8 @@ The latest version of the main branch can be played at https://rowdyflite.github
 
 Play the latest released version at https://rowdyflite.itch.io/test-dungeon.
 
+Check out the development roadmap at https://trello.com/b/kCjeaoqn/test-dungeon
+
 ## Setup
 
 ### Windows
