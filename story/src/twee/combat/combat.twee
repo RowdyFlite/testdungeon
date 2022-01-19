@@ -47,21 +47,25 @@ Opponents:
 	  		<<if _enemy.hp > 0>>\
 		  		<<button "Attack">>\
 		  			<<run $combat.attack("player", _enemy.id)>>
+		  			<<include "EnemyAttacks">>
 		  			<<goto "Combat">>
 		  		<</button>>
-		  		<<print "_enemy.name _enemy.hp/_enemy.maxhp">>
+		  		<<print "_enemy.tag HP: _enemy.hp/_enemy.maxhp">>
 		  	<<else>>
-		  		<<print "_enemy.name 0/_enemy.maxhp">>
+		  		<<print "_enemy.tag Dead">>
 	  		<</if>>
 		<</capture>>
 		<</nobr>>
 	<</for>>
 	<<button "Wait">>\
+		<<include "EnemyAttacks">>
 		<<goto "Combat">>
 	<</button>>
-	<<for _i, _id range $combat.opponents>>\
-		<<set _enemy=$combat.getCombatant(_id)>>
-		<<if _enemy.hp > 0>>
-			<<run $combat.attack(_enemy.id, "player")>>
-		<</if>>
-	<</for>>
+
+:: EnemyAttacks
+<<for _i, _id range $combat.opponents>>\
+	<<set _enemy=$combat.getCombatant(_id)>>
+	<<if _enemy.hp > 0>>
+		<<run $combat.attack(_enemy.id, "player")>>
+	<</if>>
+<</for>>
