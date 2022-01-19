@@ -3,7 +3,11 @@
     <<nobr>>
 		<<run Dialog.setup()>>
 		<<run Dialog.wiki("Name: $player.name<br>")>>
+		<<run Dialog.wiki("Level $player.level Adventurer<br>")>>
+		<<run Dialog.wiki("XP: $player.xp / $player.next_level_xp<br><br>")>>
 		<<run Dialog.wiki("HP: $player.combatant.hp / $player.combatant.maxhp<br>")>>
+		<<run Dialog.wiki("Attack: $player.combatant.att<br>")>>
+		<<run Dialog.wiki("Defense: $player.combatant.def<br>")>>
 		<<run Dialog.open()>>
     <</nobr>>\
 <</widget>>

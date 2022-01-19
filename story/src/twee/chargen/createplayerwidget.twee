@@ -4,9 +4,12 @@
     	<<script>>
 			let player = {};
 			player.name = State.variables.args[0];
+			player.level = 1;
+			player.xp = 0;
+			player.next_level_xp = window.get_next_level_threshold(player.level);
 			player.combatant = {};
-			player.combatant.maxhp = 10;
-			player.combatant.att = 3;
+			player.combatant.maxhp = window.get_maxhp_for_level(player.level);
+			player.combatant.att = window.get_att_for_level(player.level);
 			player.combatant.def = 0;
 			player.combatant.hp = player.combatant.maxhp;
 			State.variables.player = player;
@@ -16,4 +19,39 @@
 			State.variables.flags = flags;
     	<</script>>
     <</nobr>>\
+<</widget>>
+
+<<widget "addXP">>
+	You gained $args[0] xp!
+    <<nobr>>
+       	<<set $player.xp += $args[0]>>
+    	<<checkForLevelUp>>
+    <</nobr>>
+<</widget>>
+
+<<widget "checkForLevelUp">>
+    <<nobr>>
+    	<<if $player.xp >= $player.next_level_xp>>
+    		<<levelUp>>
+    	<</if>>
+    <</nobr>>
+<</widget>>
+
+<<widget "levelUp">>
+	<<nobr>>
+		<<set _new_level = 1 + $player.level>>
+		<<setPlayerToLevel _new_level>>
+    <</nobr>>
+   	You reached level $player.level!
+   	Your attack is now $player.combatant.att!
+<</widget>>
+
+<<widget "setPlayerToLevel">>
+	<<nobr>>
+		<<set $player.level = $args[0]>>
+		<<set $player.xp -= $player.next_level_xp>>
+		<<set $player.next_level_xp = window.get_next_level_threshold($player.level)>>
+		<<set $player.combatant.att = window.get_att_for_level($player.level)>>
+		<<set $player.combatant.maxhp = window.get_maxhp_for_level($player.level)>>
+    <</nobr>>
 <</widget>>

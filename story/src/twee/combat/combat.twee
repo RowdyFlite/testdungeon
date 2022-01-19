@@ -22,9 +22,15 @@
 <<set $roundLog=[]>>\
 
 :: CombatWin
-<<link "You won!" "Dungeon">>
+<<link "You won!" "Dungeon">>\
 	<<set $dungeon.floors[$dungeon.current_floor].rooms[$dungeon.current_room].encounter = null>>
 <</link>>
+<<set _xp = 0>>\
+<<for _i, _id range $combat.opponents>>\
+	<<set _xp += $combat.getCombatant(_id).xp>>\
+<</for>>
+<<addXP _xp>>
+<<endCombat>>\
 
 :: CombatLoss
 You have been defeated!

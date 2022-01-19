@@ -69,7 +69,7 @@ function floor1(){
 	encounter_table.push({
 		chance: 1,
 		tags: {
-			"kobold": 2
+			"rat": 3
 		}
 	});
 
@@ -94,19 +94,20 @@ function floor2(){
 	encounter_table.push({
 		chance: 5,
 		tags: {
-			"goblin": 1
+			"rat": 2
 		}
 	});
 	encounter_table.push({
 		chance: 2,
 		tags: {
-			"goblin": 2
+			"kobold": 1
 		}
 	});
 	encounter_table.push({
 		chance: 1,
 		tags: {
-			"goblin": 3
+			"rat": 1,
+			"kobold": 1
 		}
 	});
 
@@ -128,6 +129,7 @@ function floor3(){
 	create_exit(rooms["0,0"], rooms["1,0"]);
 	create_exit(rooms["1,0"], rooms["2,0"]);
 	create_exit(rooms["2,0"], rooms["3,0"]);
+	create_exit(rooms["3,0"], rooms["3,-1"]);
 	create_exit(rooms["3,-1"], rooms["3,-2"]);
 	create_exit(rooms["3,-2"], rooms["2,-2"]);
 	create_exit(rooms["2,-2"], rooms["2,-1"]);
@@ -136,7 +138,13 @@ function floor3(){
 	encounter_table.push({
 		chance: 5,
 		tags: {
-			"goblin": 3
+			"goblin": 1
+		}
+	});
+	encounter_table.push({
+		chance: 2,
+		tags: {
+			"goblin": 2
 		}
 	});
 	encounter_table.push({
@@ -178,8 +186,6 @@ window.init_dungeon = function(){
 	floors.push(floor1());
 	floors.push(floor2());
 	floors.push(floor3());
-
-
 
 	return {
 		floors: floors,
