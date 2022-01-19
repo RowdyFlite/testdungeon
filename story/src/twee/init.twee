@@ -4,4 +4,5 @@
 	Config.saves.slots = 3;
 	setup.init_enemies();
 <</script>>
+<<set $explored_rooms = [new Set()]>>
 <<set $game_version="0.2.0">>
