@@ -11,3 +11,12 @@
     	State.variables.roundLog = [];
     <</script>>\
 <</widget>>
+
+<<widget "endCombat">>\
+    <<script>>
+        State.variables.player.combatant.hp = State.variables.combat.getCombatant("player").hp;
+
+        State.variables.combat = null;
+        State.variables.roundLog = null;
+    <</script>>\
+<</widget>>

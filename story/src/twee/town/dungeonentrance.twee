@@ -2,5 +2,7 @@
 
 You are in front of an iron doorway surrounded by two guards.
 
-<<link "Enter the dungeon" "Dungeon">><<initDungeon>><</link>>
+<<link "Enter the dungeon" "Dungeon">><<initDungeon>>
+	<<set $player.combatant.hp = $player.combatant.maxhp>>
+<</link>>
 <<link "Back to town" "Town">><</link>>
