@@ -269,7 +269,7 @@ function floor1(){
 	encounter_table.push({
 		chance: 1,
 		tags: {
-			"kobold": 2
+			"rat": 3
 		}
 	});
 
@@ -294,19 +294,20 @@ function floor2(){
 	encounter_table.push({
 		chance: 5,
 		tags: {
-			"goblin": 1
+			"rat": 2
 		}
 	});
 	encounter_table.push({
 		chance: 2,
 		tags: {
-			"goblin": 2
+			"kobold": 1
 		}
 	});
 	encounter_table.push({
 		chance: 1,
 		tags: {
-			"goblin": 3
+			"rat": 1,
+			"kobold": 1
 		}
 	});
 
@@ -328,6 +329,7 @@ function floor3(){
 	create_exit(rooms["0,0"], rooms["1,0"]);
 	create_exit(rooms["1,0"], rooms["2,0"]);
 	create_exit(rooms["2,0"], rooms["3,0"]);
+	create_exit(rooms["3,0"], rooms["3,-1"]);
 	create_exit(rooms["3,-1"], rooms["3,-2"]);
 	create_exit(rooms["3,-2"], rooms["2,-2"]);
 	create_exit(rooms["2,-2"], rooms["2,-1"]);
@@ -336,7 +338,13 @@ function floor3(){
 	encounter_table.push({
 		chance: 5,
 		tags: {
-			"goblin": 3
+			"goblin": 1
+		}
+	});
+	encounter_table.push({
+		chance: 2,
+		tags: {
+			"goblin": 2
 		}
 	});
 	encounter_table.push({
@@ -379,8 +387,6 @@ window.init_dungeon = function(){
 	floors.push(floor2());
 	floors.push(floor3());
 
-
-
 	return {
 		floors: floors,
 		current_floor: 0,
@@ -388,11 +394,7 @@ window.init_dungeon = function(){
 		max_floor: floors.length
 	}
 }
-/* twine-user-script #3: "dungeon_init.js" */
-window.start_dungeon = function(){
-	
-}
-/* twine-user-script #4: "enemies.js" */
+/* twine-user-script #3: "enemies.js" */
 // set up the dict of enemies.
 
 function build_enemy(map, tag, hp, mp, att, def, xp){
@@ -433,6 +435,18 @@ setup.create_enemy_party = function(tag_map){
 		}
 	}
 	return party;
+}
+/* twine-user-script #4: "player.js" */
+window.get_next_level_threshold = function(current_level){
+	return 5 + current_level * 5;
+}
+
+window.get_att_for_level = function(current_level){
+	return 1 + current_level;
+}
+
+window.get_maxhp_for_level = function(current_level){
+	return 10 + (current_level - 1) * 2;
 }</script><tw-passagedata pid="1" name="Chargen" tags="" position="100,100" size="100,100">What is your name?&lt;&lt;textbox &quot;_name&quot; &quot;&quot; autofocus&gt;&gt;
 
 &lt;&lt;link &quot;Continue&quot;&gt;&gt;
@@ -449,9 +463,12 @@ setup.create_enemy_party = function(tag_map){
     	&lt;&lt;script&gt;&gt;
 			let player = {};
 			player.name = State.variables.args[0];
+			player.level = 1;
+			player.xp = 0;
+			player.next_level_xp = window.get_next_level_threshold(player.level);
 			player.combatant = {};
-			player.combatant.maxhp = 10;
-			player.combatant.att = 3;
+			player.combatant.maxhp = window.get_maxhp_for_level(player.level);
+			player.combatant.att = window.get_att_for_level(player.level);
 			player.combatant.def = 0;
 			player.combatant.hp = player.combatant.maxhp;
 			State.variables.player = player;
@@ -461,6 +478,41 @@ setup.create_enemy_party = function(tag_map){
 			State.variables.flags = flags;
     	&lt;&lt;/script&gt;&gt;
     &lt;&lt;/nobr&gt;&gt;\
+&lt;&lt;/widget&gt;&gt;
+
+&lt;&lt;widget &quot;addXP&quot;&gt;&gt;
+	You gained $args[0] xp!
+    &lt;&lt;nobr&gt;&gt;
+       	&lt;&lt;set $player.xp += $args[0]&gt;&gt;
+    	&lt;&lt;checkForLevelUp&gt;&gt;
+    &lt;&lt;/nobr&gt;&gt;
+&lt;&lt;/widget&gt;&gt;
+
+&lt;&lt;widget &quot;checkForLevelUp&quot;&gt;&gt;
+    &lt;&lt;nobr&gt;&gt;
+    	&lt;&lt;if $player.xp &gt;= $player.next_level_xp&gt;&gt;
+    		&lt;&lt;levelUp&gt;&gt;
+    	&lt;&lt;/if&gt;&gt;
+    &lt;&lt;/nobr&gt;&gt;
+&lt;&lt;/widget&gt;&gt;
+
+&lt;&lt;widget &quot;levelUp&quot;&gt;&gt;
+	&lt;&lt;nobr&gt;&gt;
+		&lt;&lt;set _new_level = 1 + $player.level&gt;&gt;
+		&lt;&lt;setPlayerToLevel _new_level&gt;&gt;
+    &lt;&lt;/nobr&gt;&gt;
+   	You reached level $player.level!
+   	Your attack is now $player.combatant.att!
+&lt;&lt;/widget&gt;&gt;
+
+&lt;&lt;widget &quot;setPlayerToLevel&quot;&gt;&gt;
+	&lt;&lt;nobr&gt;&gt;
+		&lt;&lt;set $player.level = $args[0]&gt;&gt;
+		&lt;&lt;set $player.xp -= $player.next_level_xp&gt;&gt;
+		&lt;&lt;set $player.next_level_xp = window.get_next_level_threshold($player.level)&gt;&gt;
+		&lt;&lt;set $player.combatant.att = window.get_att_for_level($player.level)&gt;&gt;
+		&lt;&lt;set $player.combatant.maxhp = window.get_maxhp_for_level($player.level)&gt;&gt;
+    &lt;&lt;/nobr&gt;&gt;
 &lt;&lt;/widget&gt;&gt;</tw-passagedata><tw-passagedata pid="3" name="Intro" tags="" position="350,100" size="100,100">One moment you were sitting at a computer. The next, you&#39;re outside, in a strange town. People wander the streets wearing armor and carrying swords and shields, and there&#39;s not a piece of electronics in sight.
 
 There&#39;s no doubt about it.
@@ -483,9 +535,15 @@ You&#39;ve been isekai&#39;d!
 &lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="5" name="CombatLog" tags="" position="600,100" size="100,100">&lt;&lt;for _i, _log range $roundLog&gt;&gt;\
 	&lt;&lt;print _log&gt;&gt;
 &lt;&lt;/for&gt;&gt;
-&lt;&lt;set $roundLog=[]&gt;&gt;\</tw-passagedata><tw-passagedata pid="6" name="CombatWin" tags="" position="725,100" size="100,100">&lt;&lt;link &quot;You won!&quot; &quot;Dungeon&quot;&gt;&gt;
+&lt;&lt;set $roundLog=[]&gt;&gt;\</tw-passagedata><tw-passagedata pid="6" name="CombatWin" tags="" position="725,100" size="100,100">&lt;&lt;link &quot;You won!&quot; &quot;Dungeon&quot;&gt;&gt;\
 	&lt;&lt;set $dungeon.floors[$dungeon.current_floor].rooms[$dungeon.current_room].encounter = null&gt;&gt;
-&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="7" name="CombatLoss" tags="" position="850,100" size="100,100">You have been defeated!
+&lt;&lt;/link&gt;&gt;
+&lt;&lt;set _xp = 0&gt;&gt;\
+&lt;&lt;for _i, _id range $combat.opponents&gt;&gt;\
+	&lt;&lt;set _xp += $combat.getCombatant(_id).xp&gt;&gt;\
+&lt;&lt;/for&gt;&gt;
+&lt;&lt;addXP _xp&gt;&gt;
+&lt;&lt;endCombat&gt;&gt;\</tw-passagedata><tw-passagedata pid="7" name="CombatLoss" tags="" position="850,100" size="100,100">You have been defeated!
 
 &lt;&lt;link &quot;Lose&quot; &quot;Die&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="8" name="CombatActions" tags="" position="975,100" size="100,100">Your HP: _player.hp/_player.maxhp
 Opponents:
@@ -523,6 +581,15 @@ Opponents:
 
     	State.variables.combat = combat;
     	State.variables.roundLog = [];
+    &lt;&lt;/script&gt;&gt;\
+&lt;&lt;/widget&gt;&gt;
+
+&lt;&lt;widget &quot;endCombat&quot;&gt;&gt;\
+    &lt;&lt;script&gt;&gt;
+        State.variables.player.combatant.hp = State.variables.combat.getCombatant(&quot;player&quot;).hp;
+
+        State.variables.combat = null;
+        State.variables.roundLog = null;
     &lt;&lt;/script&gt;&gt;\
 &lt;&lt;/widget&gt;&gt;</tw-passagedata><tw-passagedata pid="10" name="Die" tags="" position="1225,100" size="100,100">You lost a fight! You black out and reawaken in town.
 
@@ -690,14 +757,20 @@ Opponents:
 
 &lt;a href=&quot;https://github.com/RowdyFlite/testdungeon/&quot;&gt;Repository&lt;/a&gt;</tw-passagedata><tw-passagedata pid="17" name="StoryAuthor" tags="" position="850,225" size="100,100">RowdyFlite</tw-passagedata><tw-passagedata pid="18" name="StoryDisplayTitle" tags="" position="975,225" size="100,100">Test Dungeon</tw-passagedata><tw-passagedata pid="19" name="DungeonEntrance" tags="" position="1100,225" size="100,100">You are in front of an iron doorway surrounded by two guards.
 
-&lt;&lt;link &quot;Enter the dungeon&quot; &quot;Dungeon&quot;&gt;&gt;&lt;&lt;initDungeon&gt;&gt;&lt;&lt;/link&gt;&gt;
+&lt;&lt;link &quot;Enter the dungeon&quot; &quot;Dungeon&quot;&gt;&gt;&lt;&lt;initDungeon&gt;&gt;
+	&lt;&lt;set $player.combatant.hp = $player.combatant.maxhp&gt;&gt;
+&lt;&lt;/link&gt;&gt;
 &lt;&lt;link &quot;Back to town&quot; &quot;Town&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="20" name="Town" tags="" position="1225,225" size="100,100">The town is bustling with adventurers. You find an entrance to a dungeon.
 
 &lt;&lt;link &quot;Dungeon Entrance&quot; &quot;DungeonEntrance&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="21" name="PlayerCardWidget" tags="widget" position="100,350" size="100,100">&lt;&lt;widget &quot;showPlayerCard&quot;&gt;&gt;\
     &lt;&lt;nobr&gt;&gt;
 		&lt;&lt;run Dialog.setup()&gt;&gt;
 		&lt;&lt;run Dialog.wiki(&quot;Name: $player.name&lt;br&gt;&quot;)&gt;&gt;
+		&lt;&lt;run Dialog.wiki(&quot;Level $player.level Adventurer&lt;br&gt;&quot;)&gt;&gt;
+		&lt;&lt;run Dialog.wiki(&quot;XP: $player.xp / $player.next_level_xp&lt;br&gt;&lt;br&gt;&quot;)&gt;&gt;
 		&lt;&lt;run Dialog.wiki(&quot;HP: $player.combatant.hp / $player.combatant.maxhp&lt;br&gt;&quot;)&gt;&gt;
+		&lt;&lt;run Dialog.wiki(&quot;Attack: $player.combatant.att&lt;br&gt;&quot;)&gt;&gt;
+		&lt;&lt;run Dialog.wiki(&quot;Defense: $player.combatant.def&lt;br&gt;&quot;)&gt;&gt;
 		&lt;&lt;run Dialog.open()&gt;&gt;
     &lt;&lt;/nobr&gt;&gt;\
 &lt;&lt;/widget&gt;&gt;</tw-passagedata><tw-passagedata pid="22" name="StoryMenu" tags="" position="225,350" size="100,100">&lt;&lt;if $flags != null &amp;&amp; $flags.playerCard == true&gt;&gt;\
