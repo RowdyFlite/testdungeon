@@ -12,14 +12,6 @@
 		State.variables.floor = dungeon.floors[dungeon.current_floor];
 		State.variables.room = dungeon.floors[dungeon.current_floor].rooms[dungeon.current_room];
 		State.variables.explored_rooms = [new Set()];
-
-		for(const floor of State.variables.dungeon.floors){
-			for (const room_id in floor.rooms){
-				if (floor.rooms[room_id].encounter != null){
-					window.alert("Encounter at " + floor.id + " room: " + room_id);
-				}
-			}
-		}
     <</script>>
 <</widget>>
 

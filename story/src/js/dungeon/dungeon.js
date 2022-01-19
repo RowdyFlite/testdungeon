@@ -41,9 +41,6 @@ function create_exit(a, b){
 			b.south = a.id;
 		}
 	}
-	else{
-		window.alert("Invalid exit between " + a.id + " and " + b.id);
-	}
 }
 
 function floor1(){

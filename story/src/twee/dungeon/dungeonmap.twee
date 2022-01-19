@@ -1,6 +1,37 @@
 :: DungeonMap
 <div class='map'>
-	<<for _i, _id range $explored_rooms[$dungeon.current_floor]>>\
-		<div class='box exploredRoom'>_id</div>
-	<</for>>
+	<<nobr>>
+		<<set _offsets = $room.id.split(',').map(Number)>>
+		<<for _i, _id range $explored_rooms[$dungeon.current_floor]>>
+			<<set _room = $floor.rooms[_id]>>
+			<<set _coords = _id.split(',').map(Number)>>
+			<<set _coords = [_coords[0] - _offsets[0], _offsets[1] - _coords[1]]>>
+			<<set _x = (_coords[0] * 50) + 130 - 20>>
+			<<set _y = (_coords[1] * 50) + 130 - 20>>
+			<<if _room.id == $room.id>>
+				<<set _name = "🤺">>
+			<<elseif _room.start>>
+				<<set _name = "&#9660;">>
+			<<elseif _room.end>>
+				<<set _name = "&#9650;">>
+			<<else>>
+				<<set _name = "">>
+			<</if>>
+
+			<<print `<div style="left:${_x}px; top:${_y}px" class="room exploredRoom">${_name}
+				<<if _room.north>>
+					<div style="left:15px; top:-10px" class="exit"></div>
+				<</if>>
+				<<if _room.south>>
+					<div style="left:15px; top:40px" class="exit"></div>
+				<</if>>
+				<<if _room.east>>
+					<div style="left:40px; top:15px" class="exit"></div>
+				<</if>>
+				<<if _room.west>>
+					<div style="left:-10px; top:15px" class="exit"></div>
+				<</if>>
+			</div>`>>
+		<</for>>
+	<</nobr>>
 </div>

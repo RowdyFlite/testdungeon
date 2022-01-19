@@ -22,8 +22,8 @@
 <<set $roundLog=[]>>\
 
 :: CombatWin
-<<link "You won!" "Explore">>
-	<<set $current_room.event = null>>
+<<link "You won!" "Dungeon">>
+	<<set $dungeon.floors[$dungeon.current_floor].rooms[$dungeon.current_room].encounter = null>>
 <</link>>
 
 :: CombatLoss
