@@ -1,7 +1,7 @@
-set dest_folder=..\\build
+set dest_folder=.\\build
 set destination=%dest_folder%\\index.html
-set source=..\\story\\src
-set logfile=..\\build\\build_log.txt
+set source=.\\story\\src
+set logfile=.\\build\\build_log.txt
 
 :: delete old build artifacts
 if exist %dest_folder% (
@@ -24,8 +24,7 @@ tweego.exe ^
 
 ::tweego build
 if exist %destination% (
-	echo Success! Opening.
-	start %destination%
+	echo Success!
 ) else (
 	echo Build failed.
 	echo See log at %logfile%
