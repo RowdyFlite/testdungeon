@@ -1,6 +1,7 @@
 ::StoryInit
 <<script>>
 	Config.saves.slots = 3;
+	setup.load_rooms();
 	setup.init_enemies();
 <</script>>
 <<set $explored_rooms = [new Set()]>>

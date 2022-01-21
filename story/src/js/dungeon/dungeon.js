@@ -194,3 +194,14 @@ window.init_dungeon = function(){
 		max_floor: floors.length
 	}
 }
+
+setup.load_rooms = function(){
+	var lockId = LoadScreen.lock();
+	let path = "test.json";
+	$.getJSON(path, function(data) {
+		setup.result = data["output"];
+		console.log(setup.result);
+		Engine.show();
+		LoadScreen.unlock(lockId);
+	});
+}
