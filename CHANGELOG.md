@@ -1,4 +1,19 @@
 # Change Log
+## [0.4.0] - 2022-01-23
+
+### Added
+- Weapons and armor are available for purchase in town.
+- Kill kobolds and goblins to gain gp to spend.
+
+### Changed
+
+### Fixed
+
+### Known Issues
+- Lots of extra line breaks in a lot of passages.
+- Inconsistent naming conventions for files, variables, etc.
+- There's stuff in State.variables that probably shouldn't be there, and stuff on window that should probably be on Setup.
+
 ## [0.3.0] - 2022-01-18
 
 ### Added
