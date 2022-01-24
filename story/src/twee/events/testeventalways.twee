@@ -1,5 +1,5 @@
-:: TestEvent
-You've reached the test event!
+:: TestEventAlways
+You've reached the test event! This one always plays!
 <<link "Clear" "Event">>
     <<set $event.finished = true>>
 <</link>>

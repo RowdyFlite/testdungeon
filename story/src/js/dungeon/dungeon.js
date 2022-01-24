@@ -54,9 +54,9 @@ function floor1(){
 	create_exit(rooms["0,1"], rooms["0,2"]);
 
 	rooms["0,1"].event = {
-		id: "TestEvent",
+		id: "TestEventOnce",
 		type: "once", //once, always
-		passage:"TestEvent",
+		passage:"TestEventOnce",
 		closing_text: "You cleared it!"	
 	};
 
@@ -140,6 +140,13 @@ function floor3(){
 	create_exit(rooms["3,-1"], rooms["3,-2"]);
 	create_exit(rooms["3,-2"], rooms["2,-2"]);
 	create_exit(rooms["2,-2"], rooms["2,-1"]);
+
+	rooms["2,-1"].event = {
+		id: "TestEventAlways",
+		type: "always", //once, always
+		passage:"TestEventAlways",
+		closing_text: "You cleared it!"	
+	};
 
 	let encounter_table = [];
 	encounter_table.push({

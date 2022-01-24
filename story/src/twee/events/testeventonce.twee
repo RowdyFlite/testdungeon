@@ -1,0 +1,8 @@
+:: TestEventOnce
+You've reached the test event! This one plays once per profile.
+<<link "Clear" "Event">>
+    <<set $event.finished = true>>
+<</link>>
+
+<<link "Don't clear" "Event">>
+<</link>>
