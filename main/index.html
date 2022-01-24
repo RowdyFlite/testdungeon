@@ -411,7 +411,7 @@ window.init_dungeon = function(){
 /* twine-user-script #3: "enemies.js" */
 // set up the dict of enemies.
 
-function build_enemy(map, tag, hp, mp, att, def, xp){
+function build_enemy(map, tag, hp, mp, att, def, xp, gp){
 	map[tag] = {
 		tag: tag,
 		hp: hp,
@@ -419,7 +419,8 @@ function build_enemy(map, tag, hp, mp, att, def, xp){
 		mp: mp,
 		att: att,
 		def: def,
-		xp: xp
+		xp: xp,
+		gp: gp
 	}
 }
 
@@ -427,10 +428,10 @@ function build_enemy(map, tag, hp, mp, att, def, xp){
 setup.init_enemies = function(){
 	let enemy_map = {};
 
-	build_enemy(enemy_map, "rat", 1, 0, 1, 0, 1);
-	build_enemy(enemy_map, "kobold", 3, 0, 2, 0, 2);
-	build_enemy(enemy_map, "goblin", 5, 0, 3, 1, 4);
-	build_enemy(enemy_map, "goblin shaman", 1, 5, 1, 0, 3);
+	build_enemy(enemy_map, "rat", 1, 0, 1, 0, 1, 0);
+	build_enemy(enemy_map, "kobold", 3, 0, 2, 0, 2, 1);
+	build_enemy(enemy_map, "goblin", 5, 0, 3, 1, 4, 1);
+	build_enemy(enemy_map, "goblin shaman", 1, 5, 1, 0, 3, 2);
 
 	setup.enemy_map = enemy_map;
 }
@@ -480,11 +481,13 @@ window.get_maxhp_for_level = function(current_level){
 			player.level = 1;
 			player.xp = 0;
 			player.next_level_xp = window.get_next_level_threshold(player.level);
-			player.combatant = {};
-			player.combatant.maxhp = window.get_maxhp_for_level(player.level);
-			player.combatant.att = window.get_att_for_level(player.level);
-			player.combatant.def = 0;
-			player.combatant.hp = player.combatant.maxhp;
+			player.maxhp = window.get_maxhp_for_level(player.level);
+			player.att = window.get_att_for_level(player.level);
+			player.def = 0;
+			player.hp = player.maxhp;
+			player.gp = 10;
+			player.weapon = null;
+			player.armor = null;
 			State.variables.player = player;
 
 			let flags = new Set();
@@ -502,6 +505,13 @@ window.get_maxhp_for_level = function(current_level){
     &lt;&lt;/nobr&gt;&gt;
 &lt;&lt;/widget&gt;&gt;
 
+&lt;&lt;widget &quot;addGP&quot;&gt;&gt;
+	You gained $args[0] gp!
+    &lt;&lt;nobr&gt;&gt;
+       	&lt;&lt;set $player.gp += $args[0]&gt;&gt;
+    &lt;&lt;/nobr&gt;&gt;
+&lt;&lt;/widget&gt;&gt;
+
 &lt;&lt;widget &quot;checkForLevelUp&quot;&gt;&gt;
     &lt;&lt;nobr&gt;&gt;
     	&lt;&lt;if $player.xp &gt;= $player.next_level_xp&gt;&gt;
@@ -516,7 +526,7 @@ window.get_maxhp_for_level = function(current_level){
 		&lt;&lt;setPlayerToLevel _new_level&gt;&gt;
     &lt;&lt;/nobr&gt;&gt;
    	You reached level $player.level!
-   	Your attack is now $player.combatant.att!
+   	Your attack is now $player.att!
 &lt;&lt;/widget&gt;&gt;
 
 &lt;&lt;widget &quot;setPlayerToLevel&quot;&gt;&gt;
@@ -524,8 +534,8 @@ window.get_maxhp_for_level = function(current_level){
 		&lt;&lt;set $player.level = $args[0]&gt;&gt;
 		&lt;&lt;set $player.xp -= $player.next_level_xp&gt;&gt;
 		&lt;&lt;set $player.next_level_xp = window.get_next_level_threshold($player.level)&gt;&gt;
-		&lt;&lt;set $player.combatant.att = window.get_att_for_level($player.level)&gt;&gt;
-		&lt;&lt;set $player.combatant.maxhp = window.get_maxhp_for_level($player.level)&gt;&gt;
+		&lt;&lt;set $player.att = window.get_att_for_level($player.level)&gt;&gt;
+		&lt;&lt;set $player.maxhp = window.get_maxhp_for_level($player.level)&gt;&gt;
     &lt;&lt;/nobr&gt;&gt;
 &lt;&lt;/widget&gt;&gt;</tw-passagedata><tw-passagedata pid="3" name="Intro" tags="" position="350,100" size="100,100">One moment you were sitting at a computer. The next, you&#39;re outside, in a strange town. People wander the streets wearing armor and carrying swords and shields, and there&#39;s not a piece of electronics in sight.
 
@@ -553,10 +563,13 @@ You&#39;ve been isekai&#39;d!
 	&lt;&lt;set $dungeon.floors[$dungeon.current_floor].rooms[$dungeon.current_room].encounter = null&gt;&gt;
 &lt;&lt;/link&gt;&gt;
 &lt;&lt;set _xp = 0&gt;&gt;\
+&lt;&lt;set _gp = 0&gt;&gt;\
 &lt;&lt;for _i, _id range $combat.opponents&gt;&gt;\
 	&lt;&lt;set _xp += $combat.getCombatant(_id).xp&gt;&gt;\
+	&lt;&lt;set _gp += $combat.getCombatant(_id).gp&gt;&gt;\
 &lt;&lt;/for&gt;&gt;
 &lt;&lt;addXP _xp&gt;&gt;
+&lt;&lt;addGP _gp&gt;&gt;
 &lt;&lt;endCombat&gt;&gt;\</tw-passagedata><tw-passagedata pid="7" name="CombatLoss" tags="" position="850,100" size="100,100">You have been defeated!
 
 &lt;&lt;link &quot;Lose&quot; &quot;Die&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="8" name="CombatActions" tags="" position="975,100" size="100,100">Your HP: _player.hp/_player.maxhp
@@ -592,7 +605,14 @@ Opponents:
 
         let opponents = setup.create_enemy_party(State.variables.args[0]);
     	combat.addOpponents(opponents);
-        combat.addPlayer(&quot;player&quot;, State.variables.player.combatant);
+        let player = State.variables.player;
+        let player_combatant = {
+            hp: player.hp,
+            maxhp: player.maxhp,
+            att: player.weapon == null ? player.att : player.att + setup.gamedata.weapons[player.weapon].att,
+            def: player.armor == null ? player.def : player.def + setup.gamedata.armors[player.armor].def
+        };
+        combat.addPlayer(&quot;player&quot;, player_combatant);
 
     	State.variables.combat = combat;
     	State.variables.roundLog = [];
@@ -601,7 +621,7 @@ Opponents:
 
 &lt;&lt;widget &quot;endCombat&quot;&gt;&gt;\
     &lt;&lt;script&gt;&gt;
-        State.variables.player.combatant.hp = State.variables.combat.getCombatant(&quot;player&quot;).hp;
+        State.variables.player.hp = State.variables.combat.getCombatant(&quot;player&quot;).hp;
 
         State.variables.combat = null;
         State.variables.roundLog = null;
@@ -813,6 +833,45 @@ Opponents:
 &lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="20" name="StoryInit" tags="" position="1225,225" size="100,100">&lt;&lt;script&gt;&gt;
 	Config.saves.slots = 3;
 	setup.init_enemies();
+	setup.gamedata = {};
+	setup.gamedata.weapons = {};
+	setup.gamedata.weapons[&quot;dagger&quot;] = {
+		id: &quot;dagger&quot;,
+		cost: 3,
+		att: 1,
+		name: &quot;Dagger&quot;
+	};
+	setup.gamedata.weapons[&quot;shortsword&quot;] = {
+		id: &quot;shortsword&quot;,
+		cost: 10,
+		att: 3,
+		name: &quot;Short Sword&quot;
+	};
+	setup.gamedata.weapons[&quot;longsword&quot;] = {
+		id: &quot;longsword&quot;,
+		cost: 25,
+		att: 5,
+		name: &quot;Long Sword&quot;
+	};
+	setup.gamedata.armors = {};
+	setup.gamedata.armors[&quot;leather&quot;] = {
+		id: &quot;leather&quot;,
+		cost: 5,
+		def: 1,
+		name: &quot;Leather&quot;
+	};
+	setup.gamedata.armors[&quot;chain&quot;] = {
+		id: &quot;chain&quot;,
+		cost: 10,
+		def: 2,
+		name: &quot;Chain Mail&quot;
+	};
+	setup.gamedata.armors[&quot;plate&quot;] = {
+		id: &quot;plate&quot;,
+		cost: 25,
+		def: 3,
+		name: &quot;Plate Mail&quot;
+	};
 &lt;&lt;/script&gt;&gt;
 &lt;&lt;set $explored_rooms = [new Set()]&gt;&gt;
 &lt;&lt;set $game_version=&quot;0.3.0&quot;&gt;&gt;</tw-passagedata><tw-passagedata pid="21" name="MainMenu" tags="" position="100,350" size="100,100">&lt;&lt;set _title = Story.title&gt;&gt;
@@ -822,25 +881,95 @@ Opponents:
 &lt;&lt;button &quot;New Game&quot; &quot;Intro&quot;&gt;&gt;&lt;&lt;/button&gt;&gt;
 &lt;&lt;button &quot;Load Game&quot;&gt;&gt;&lt;&lt;script&gt;&gt;UI.saves()&lt;&lt;/script&gt;&gt;&lt;&lt;/button&gt;&gt;
 
-&lt;a href=&quot;https://github.com/RowdyFlite/testdungeon/&quot;&gt;Repository&lt;/a&gt;</tw-passagedata><tw-passagedata pid="22" name="StoryAuthor" tags="" position="225,350" size="100,100">RowdyFlite</tw-passagedata><tw-passagedata pid="23" name="StoryDisplayTitle" tags="" position="350,350" size="100,100">Test Dungeon</tw-passagedata><tw-passagedata pid="24" name="DungeonEntrance" tags="" position="475,350" size="100,100">You are in front of an iron doorway surrounded by two guards.
+&lt;a href=&quot;https://github.com/RowdyFlite/testdungeon/&quot;&gt;Repository&lt;/a&gt;</tw-passagedata><tw-passagedata pid="22" name="StoryAuthor" tags="" position="225,350" size="100,100">RowdyFlite</tw-passagedata><tw-passagedata pid="23" name="StoryDisplayTitle" tags="" position="350,350" size="100,100">Test Dungeon</tw-passagedata><tw-passagedata pid="24" name="ArmorShop" tags="" position="475,350" size="100,100">You are in the armor shop.
+You have $player.gp gold.
+&lt;&lt;nobr&gt;&gt;
+&lt;&lt;set _armors = [
+    &quot;leather&quot;,
+    &quot;chain&quot;,
+    &quot;plate&quot;
+]&gt;&gt;
+&lt;&lt;for _id range _armors&gt;&gt;
+    &lt;&lt;set _armor = setup.gamedata.armors[_id]&gt;&gt;
+        &lt;&lt;capture _armor&gt;&gt;
+        _armor.name: -_armor.def damage: _armor.cost gp
+        &lt;&lt;if $player.gp &gt;= _armor.cost &amp;&amp; $player.armor != _armor.id&gt;&gt;
+            &lt;&lt;link &quot;Buy&quot; &quot;ArmorShop&quot;&gt;&gt;
+                &lt;&lt;set $player.gp -= _armor.cost&gt;&gt;
+                &lt;&lt;set $player.armor = _armor.id&gt;&gt;
+            &lt;&lt;/link&gt;&gt;
+        &lt;&lt;/if&gt;&gt;
+        &lt;br&gt;
+    &lt;&lt;/capture&gt;&gt;
+&lt;&lt;/for&gt;&gt;
+&lt;&lt;/nobr&gt;&gt;
+&lt;&lt;if $player.armor == null&gt;&gt;
+    You don&#39;t have any armor.
+&lt;&lt;else&gt;&gt;
+    &lt;&lt;set _armor_name = setup.gamedata.armors[$player.armor].name&gt;&gt;
+    Current armor: _armor_name
+&lt;&lt;/if&gt;&gt;
+
+&lt;&lt;link &quot;Back&quot; &quot;Town&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="25" name="DungeonEntrance" tags="" position="600,350" size="100,100">You are in front of an iron doorway surrounded by two guards.
 
 &lt;&lt;link &quot;Enter the dungeon&quot; &quot;Dungeon&quot;&gt;&gt;&lt;&lt;initDungeon&gt;&gt;
-	&lt;&lt;set $player.combatant.hp = $player.combatant.maxhp&gt;&gt;
+	&lt;&lt;set $player.hp = $player.maxhp&gt;&gt;
 &lt;&lt;/link&gt;&gt;
-&lt;&lt;link &quot;Back to town&quot; &quot;Town&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="25" name="Town" tags="" position="600,350" size="100,100">The town is bustling with adventurers. You find an entrance to a dungeon.
+&lt;&lt;link &quot;Back to town&quot; &quot;Town&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="26" name="Town" tags="" position="725,350" size="100,100">The town is bustling with adventurers. You find an entrance to a dungeon.
 
-&lt;&lt;link &quot;Dungeon Entrance&quot; &quot;DungeonEntrance&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="26" name="PlayerCardWidget" tags="widget" position="725,350" size="100,100">&lt;&lt;widget &quot;showPlayerCard&quot;&gt;&gt;\
+&lt;&lt;link &quot;Dungeon Entrance&quot; &quot;DungeonEntrance&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;
+&lt;&lt;link &quot;Weapon Shop&quot; &quot;WeaponShop&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;
+&lt;&lt;link &quot;Armor Shop&quot; &quot;ArmorShop&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="27" name="WeaponShop" tags="" position="850,350" size="100,100">You are in the weapon shop.
+You have $player.gp gold.
+&lt;&lt;nobr&gt;&gt;
+&lt;&lt;set _weapons = [
+    &quot;dagger&quot;,
+    &quot;shortsword&quot;,
+    &quot;longsword&quot;
+]&gt;&gt;
+&lt;&lt;for _id range _weapons&gt;&gt;
+    &lt;&lt;set _weapon = setup.gamedata.weapons[_id]&gt;&gt;
+        &lt;&lt;capture _weapon&gt;&gt;
+        _weapon.name: +_weapon.att damage: _weapon.cost gp
+        &lt;&lt;if $player.gp &gt;= _weapon.cost &amp;&amp; $player.weapon != _weapon.id&gt;&gt;
+            &lt;&lt;link &quot;Buy&quot; &quot;WeaponShop&quot;&gt;&gt;
+                &lt;&lt;set $player.gp -= _weapon.cost&gt;&gt;
+                &lt;&lt;set $player.weapon = _weapon.id&gt;&gt;
+            &lt;&lt;/link&gt;&gt;
+        &lt;&lt;/if&gt;&gt;
+        &lt;br&gt;
+    &lt;&lt;/capture&gt;&gt;
+&lt;&lt;/for&gt;&gt;
+&lt;&lt;/nobr&gt;&gt;
+&lt;&lt;if $player.weapon == null&gt;&gt;
+    You don&#39;t have a weapon.
+&lt;&lt;else&gt;&gt;
+    &lt;&lt;set _weap_name = setup.gamedata.weapons[$player.weapon].name&gt;&gt;
+    Current weapon: _weap_name
+&lt;&lt;/if&gt;&gt;
+
+&lt;&lt;link &quot;Back&quot; &quot;Town&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="28" name="PlayerCardWidget" tags="widget" position="975,350" size="100,100">&lt;&lt;widget &quot;showPlayerCard&quot;&gt;&gt;\
     &lt;&lt;nobr&gt;&gt;
+		&lt;&lt;set _dmg = $player.weapon == null ? $player.att : $player.att + setup.gamedata.weapons[$player.weapon].att&gt;&gt;
+		&lt;&lt;set _def = $player.armor == null ? $player.def : $player.def + setup.gamedata.armors[$player.armor].def&gt;&gt;
+		&lt;&lt;set _weap = $player.weapon == null ? &quot;None&lt;br&gt;&quot; : setup.gamedata.weapons[$player.weapon].name&gt;&gt;
+		&lt;&lt;set _arm = $player.armor == null ? &quot;None&quot; : setup.gamedata.armors[$player.armor].name&gt;&gt;
+
 		&lt;&lt;run Dialog.setup()&gt;&gt;
 		&lt;&lt;run Dialog.wiki(&quot;Name: $player.name&lt;br&gt;&quot;)&gt;&gt;
 		&lt;&lt;run Dialog.wiki(&quot;Level $player.level Adventurer&lt;br&gt;&quot;)&gt;&gt;
-		&lt;&lt;run Dialog.wiki(&quot;XP: $player.xp / $player.next_level_xp&lt;br&gt;&lt;br&gt;&quot;)&gt;&gt;
-		&lt;&lt;run Dialog.wiki(&quot;HP: $player.combatant.hp / $player.combatant.maxhp&lt;br&gt;&quot;)&gt;&gt;
-		&lt;&lt;run Dialog.wiki(&quot;Attack: $player.combatant.att&lt;br&gt;&quot;)&gt;&gt;
-		&lt;&lt;run Dialog.wiki(&quot;Defense: $player.combatant.def&lt;br&gt;&quot;)&gt;&gt;
+		&lt;&lt;run Dialog.wiki(&quot;XP: $player.xp / $player.next_level_xp&lt;br&gt;&quot;)&gt;&gt;
+		&lt;&lt;run Dialog.wiki(&quot;HP: $player.hp / $player.maxhp&lt;br&gt;&quot;)&gt;&gt;
+		&lt;&lt;run Dialog.wiki(&quot;Attack: _dmg&lt;br&gt;&quot;)&gt;&gt;
+		&lt;&lt;run Dialog.wiki(&quot;Weapon: &quot; + _weap)&gt;&gt;
+		&lt;&lt;run Dialog.wiki(&quot;&lt;br&gt;&quot;)&gt;&gt;
+		&lt;&lt;run Dialog.wiki(&quot;Defense: _def&lt;br&gt;&quot;)&gt;&gt;
+		&lt;&lt;run Dialog.wiki(&quot;Armor: &quot; + _arm)&gt;&gt;
+		&lt;&lt;run Dialog.wiki(&quot;&lt;br&gt;&quot;)&gt;&gt;
+		&lt;&lt;run Dialog.wiki(&quot;Gold: $player.gp&lt;br&gt;&quot;)&gt;&gt;
 		&lt;&lt;run Dialog.open()&gt;&gt;
     &lt;&lt;/nobr&gt;&gt;\
-&lt;&lt;/widget&gt;&gt;</tw-passagedata><tw-passagedata pid="27" name="StoryMenu" tags="" position="850,350" size="100,100">&lt;&lt;if $flags != null &amp;&amp; $flags.has(&quot;playerCard&quot;)&gt;&gt;\
+&lt;&lt;/widget&gt;&gt;</tw-passagedata><tw-passagedata pid="29" name="StoryMenu" tags="" position="1100,350" size="100,100">&lt;&lt;if $flags != null &amp;&amp; $flags.has(&quot;playerCard&quot;)&gt;&gt;\
 	&lt;&lt;link &quot;Player Card&quot;&gt;&gt;&lt;&lt;showPlayerCard&gt;&gt;&lt;&lt;/link&gt;&gt;
 &lt;&lt;/if&gt;&gt;</tw-passagedata></tw-storydata>
 	<script id="script-sugarcube" type="text/javascript">
