@@ -53,6 +53,11 @@ function floor1(){
 	create_exit(rooms["0,0"], rooms["0,1"]);
 	create_exit(rooms["0,1"], rooms["0,2"]);
 
+	rooms["0,1"].event = {
+		passage:"TestEvent",
+		closing_text: "You cleared it!"	
+	};
+
 	let encounter_table = [];
 	encounter_table.push({
 		chance: 5,

@@ -1,6 +1,8 @@
 :: Event
-<<set _evt=$room.encounter>>
-
-<<link "Combat!" "Combat">>
-	<<startCombat _evt>>
-<</link>>
+<<if !$event.finished>>
+	<<include $event.passage>>
+<<else>>
+	<<link $event.closing_text "Dungeon">>
+		<<set $dungeon.floors[$dungeon.current_floor].rooms[$dungeon.current_room].event = null>>
+	<</link>>
+<</if>>
