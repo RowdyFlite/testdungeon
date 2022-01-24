@@ -3,6 +3,9 @@
 	<<include $event.passage>>
 <<else>>
 	<<link $event.closing_text "Dungeon">>
+		<<if $event.type == "once">>
+			<<run $flags.add($event.id)>>
+		<</if>>
 		<<set $dungeon.floors[$dungeon.current_floor].rooms[$dungeon.current_room].event = null>>
 	<</link>>
 <</if>>

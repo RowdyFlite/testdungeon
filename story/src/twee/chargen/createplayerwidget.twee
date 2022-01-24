@@ -14,8 +14,8 @@
 			player.combatant.hp = player.combatant.maxhp;
 			State.variables.player = player;
 
-			let flags = {};
-			flags.playerCard = true;
+			let flags = new Set();
+			flags.add("playerCard");
 			State.variables.flags = flags;
     	<</script>>
     <</nobr>>\

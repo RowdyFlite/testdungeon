@@ -54,6 +54,8 @@ function floor1(){
 	create_exit(rooms["0,1"], rooms["0,2"]);
 
 	rooms["0,1"].event = {
+		id: "TestEvent",
+		type: "once", //once, always
 		passage:"TestEvent",
 		closing_text: "You cleared it!"	
 	};

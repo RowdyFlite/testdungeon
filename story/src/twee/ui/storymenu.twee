@@ -1,4 +1,4 @@
 :: StoryMenu
-<<if $flags != null && $flags.playerCard == true>>\
+<<if $flags != null && $flags.has("playerCard")>>\
 	<<link "Player Card">><<showPlayerCard>><</link>>
 <</if>>

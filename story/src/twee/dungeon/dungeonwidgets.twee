@@ -20,8 +20,14 @@
 		State.variables.floor = dungeon.floors[dungeon.current_floor];
 		State.variables.room = dungeon.floors[dungeon.current_floor].rooms[dungeon.current_room];
 		State.variables.explored_rooms[dungeon.current_floor].add(dungeon.current_room);
-		State.variables.event = State.variables.room.event;
 		State.variables.encounter = State.variables.room.encounter;
+		if (State.variables.room.event == null || (State.variables.room.event.type == "once" && State.variables.flags.has(State.variables.room.event.id))){
+			State.variables.event = null;			
+		}
+		else {
+			State.variables.event = State.variables.room.event;
+		}		
+
 	<</script>>
 <</widget>>
 
