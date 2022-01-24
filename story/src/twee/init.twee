@@ -43,4 +43,4 @@
 	};
 <</script>>
 <<set $explored_rooms = [new Set()]>>
-<<set $game_version="0.3.0">>
+<<set $game_version="0.4.0">>
