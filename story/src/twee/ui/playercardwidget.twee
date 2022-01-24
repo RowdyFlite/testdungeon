@@ -1,17 +1,22 @@
 :: PlayerCardWidget [widget]
 <<widget "showPlayerCard">>\
     <<nobr>>
+		<<set _dmg = $player.weapon == null ? $player.att : $player.att + setup.gamedata.weapons[$player.weapon].att>>
+		<<set _def = $player.armor == null ? $player.def : $player.def + setup.gamedata.armors[$player.armor].def>>
+		<<set _weap = $player.weapon == null ? "None<br>" : setup.gamedata.weapons[$player.weapon].name>>
+		<<set _arm = $player.armor == null ? "None" : setup.gamedata.armors[$player.armor].name>>
+
 		<<run Dialog.setup()>>
 		<<run Dialog.wiki("Name: $player.name<br>")>>
 		<<run Dialog.wiki("Level $player.level Adventurer<br>")>>
 		<<run Dialog.wiki("XP: $player.xp / $player.next_level_xp<br>")>>
 		<<run Dialog.wiki("HP: $player.hp / $player.maxhp<br>")>>
-		<<set _dmg = $player.weapon == null ? $player.att : $player.att + setup.gamedata.weapons[$player.weapon].att>>
-		<<set _def = $player.armor == null ? $player.def : $player.def + setup.gamedata.armors[$player.armor].def>>
 		<<run Dialog.wiki("Attack: _dmg<br>")>>
-		<<run Dialog.wiki("Weapon: " + ($player.weapon == null ? "None<br>" : setup.gamedata.weapons[$player.weapon])) + "<br>">>
+		<<run Dialog.wiki("Weapon: " + _weap)>>
+		<<run Dialog.wiki("<br>")>>
 		<<run Dialog.wiki("Defense: _def<br>")>>
-		<<run Dialog.wiki("Armor: " + ($player.armor == null ? "None<br>" : setup.gamedata.armors[$player.armor])) + "<br>">>
+		<<run Dialog.wiki("Armor: " + _arm)>>
+		<<run Dialog.wiki("<br>")>>
 		<<run Dialog.wiki("Gold: $player.gp<br>")>>
 		<<run Dialog.open()>>
     <</nobr>>\

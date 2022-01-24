@@ -11,7 +11,7 @@ You have $player.gp gold.
 <<for _id range _armors>>
     <<set _armor = setup.gamedata.armors[_id]>>
         <<capture _armor>>
-        _armor.name: +_armor.att damage: _armor.cost gp
+        _armor.name: -_armor.def damage: _armor.cost gp
         <<if $player.gp >= _armor.cost && $player.armor != _armor.id>>
             <<link "Buy" "ArmorShop">>
                 <<set $player.gp -= _armor.cost>>
@@ -25,7 +25,8 @@ You have $player.gp gold.
 <<if $player.armor == null>>
     You don't have any armor.
 <<else>>
-    Current armor: setup.gamedata.armors[$player.armor].name
+    <<set _armor_name = setup.gamedata.armors[$player.armor].name>>
+    Current armor: _armor_name
 <</if>>
 
 <<link "Back" "Town">><</link>>

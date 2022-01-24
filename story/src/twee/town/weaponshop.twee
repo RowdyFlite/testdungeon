@@ -25,7 +25,8 @@ You have $player.gp gold.
 <<if $player.weapon == null>>
     You don't have a weapon.
 <<else>>
-    Current weapon: setup.gamedata.weapons[$player.weapon].name
+    <<set _weap_name = setup.gamedata.weapons[$player.weapon].name>>
+    Current weapon: _weap_name
 <</if>>
 
 <<link "Back" "Town">><</link>>

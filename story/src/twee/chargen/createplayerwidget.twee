@@ -11,7 +11,7 @@
 			player.att = window.get_att_for_level(player.level);
 			player.def = 0;
 			player.hp = player.maxhp;
-			player.gp = 0;
+			player.gp = 10;
 			player.weapon = null;
 			player.armor = null;
 			State.variables.player = player;
