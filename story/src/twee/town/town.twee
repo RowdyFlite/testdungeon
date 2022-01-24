@@ -2,3 +2,5 @@
 The town is bustling with adventurers. You find an entrance to a dungeon.
 
 <<link "Dungeon Entrance" "DungeonEntrance">><</link>>
+<<link "Weapon Shop" "WeaponShop">><</link>>
+<<link "Armor Shop" "ArmorShop">><</link>>

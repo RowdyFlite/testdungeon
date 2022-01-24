@@ -5,7 +5,14 @@
 
         let opponents = setup.create_enemy_party(State.variables.args[0]);
     	combat.addOpponents(opponents);
-        combat.addPlayer("player", State.variables.player.combatant);
+        let player = State.variables.player;
+        let player_combatant = {
+            hp: player.hp,
+            maxhp: player.maxhp,
+            att: player.weapon == null ? player.att : player.att + setup.gamedata.weapons[player.weapon].att,
+            def: player.armor == null ? player.def : player.def + setup.gamedata.armors[player.armor].def
+        };
+        combat.addPlayer("player", player_combatant);
 
     	State.variables.combat = combat;
     	State.variables.roundLog = [];
@@ -14,7 +21,7 @@
 
 <<widget "endCombat">>\
     <<script>>
-        State.variables.player.combatant.hp = State.variables.combat.getCombatant("player").hp;
+        State.variables.player.hp = State.variables.combat.getCombatant("player").hp;
 
         State.variables.combat = null;
         State.variables.roundLog = null;

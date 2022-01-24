@@ -26,10 +26,13 @@
 	<<set $dungeon.floors[$dungeon.current_floor].rooms[$dungeon.current_room].encounter = null>>
 <</link>>
 <<set _xp = 0>>\
+<<set _gp = 0>>\
 <<for _i, _id range $combat.opponents>>\
 	<<set _xp += $combat.getCombatant(_id).xp>>\
+	<<set _gp += $combat.getCombatant(_id).gp>>\
 <</for>>
 <<addXP _xp>>
+<<addGP _gp>>
 <<endCombat>>\
 
 :: CombatLoss

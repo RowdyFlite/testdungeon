@@ -2,6 +2,45 @@
 <<script>>
 	Config.saves.slots = 3;
 	setup.init_enemies();
+	setup.gamedata = {};
+	setup.gamedata.weapons = {};
+	setup.gamedata.weapons["dagger"] = {
+		id: "dagger",
+		cost: 3,
+		att: 1,
+		name: "Dagger"
+	};
+	setup.gamedata.weapons["shortsword"] = {
+		id: "shortsword",
+		cost: 10,
+		att: 3,
+		name: "Short Sword"
+	};
+	setup.gamedata.weapons["longsword"] = {
+		id: "longsword",
+		cost: 25,
+		att: 5,
+		name: "Long Sword"
+	};
+	setup.gamedata.armors = {};
+	setup.gamedata.armors["leather"] = {
+		id: "leather",
+		cost: 5,
+		def: 1,
+		name: "Leather"
+	};
+	setup.gamedata.armors["chain"] = {
+		id: "chain",
+		cost: 10,
+		def: 2,
+		name: "Chain Mail"
+	};
+	setup.gamedata.armors["plate"] = {
+		id: "plate",
+		cost: 25,
+		def: 3,
+		name: "Plate Mail"
+	};
 <</script>>
 <<set $explored_rooms = [new Set()]>>
 <<set $game_version="0.3.0">>

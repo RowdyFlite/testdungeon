@@ -1,0 +1,31 @@
+:: ArmorShop
+
+You are in the armor shop.
+You have $player.gp gold.
+<<nobr>>
+<<set _armors = [
+    "leather",
+    "chain",
+    "plate"
+]>>
+<<for _id range _armors>>
+    <<set _armor = setup.gamedata.armors[_id]>>
+        <<capture _armor>>
+        _armor.name: +_armor.att damage: _armor.cost gp
+        <<if $player.gp >= _armor.cost && $player.armor != _armor.id>>
+            <<link "Buy" "ArmorShop">>
+                <<set $player.gp -= _armor.cost>>
+                <<set $player.armor = _armor.id>>
+            <</link>>
+        <</if>>
+        <br>
+    <</capture>>
+<</for>>
+<</nobr>>
+<<if $player.armor == null>>
+    You don't have any armor.
+<<else>>
+    Current armor: setup.gamedata.armors[$player.armor].name
+<</if>>
+
+<<link "Back" "Town">><</link>>

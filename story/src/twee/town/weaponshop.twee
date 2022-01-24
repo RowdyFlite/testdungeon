@@ -1,0 +1,31 @@
+:: WeaponShop
+
+You are in the weapon shop.
+You have $player.gp gold.
+<<nobr>>
+<<set _weapons = [
+    "dagger",
+    "shortsword",
+    "longsword"
+]>>
+<<for _id range _weapons>>
+    <<set _weapon = setup.gamedata.weapons[_id]>>
+        <<capture _weapon>>
+        _weapon.name: +_weapon.att damage: _weapon.cost gp
+        <<if $player.gp >= _weapon.cost && $player.weapon != _weapon.id>>
+            <<link "Buy" "WeaponShop">>
+                <<set $player.gp -= _weapon.cost>>
+                <<set $player.weapon = _weapon.id>>
+            <</link>>
+        <</if>>
+        <br>
+    <</capture>>
+<</for>>
+<</nobr>>
+<<if $player.weapon == null>>
+    You don't have a weapon.
+<<else>>
+    Current weapon: setup.gamedata.weapons[$player.weapon].name
+<</if>>
+
+<<link "Back" "Town">><</link>>
