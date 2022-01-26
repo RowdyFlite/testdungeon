@@ -1,10 +1,10 @@
 :: PlayerCardWidget [widget]
 <<widget "showPlayerCard">>\
     <<nobr>>
-		<<set _dmg = $player.weapon == null ? $player.att : $player.att + setup.gamedata.weapons[$player.weapon].att>>
-		<<set _def = $player.armor == null ? $player.def : $player.def + setup.gamedata.armors[$player.armor].def>>
-		<<set _weap = $player.weapon == null ? "None<br>" : setup.gamedata.weapons[$player.weapon].name>>
-		<<set _arm = $player.armor == null ? "None" : setup.gamedata.armors[$player.armor].name>>
+		<<set _dmg = $player.weapon == null ? $player.att : $player.att + setup.gamedata.get("Weapon", $player.weapon).att>>
+		<<set _def = $player.armor == null ? $player.def : $player.def + setup.gamedata.get("Armor", $player.armor).def>>
+		<<set _weap = $player.weapon == null ? "None<br>" : setup.gamedata.get("Weapon", $player.weapon).name>>
+		<<set _arm = $player.armor == null ? "None" : setup.gamedata.get("Armor", $player.armor).name>>
 
 		<<run Dialog.setup()>>
 		<<run Dialog.wiki("Name: $player.name<br>")>>
