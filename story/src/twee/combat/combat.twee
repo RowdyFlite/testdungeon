@@ -53,9 +53,9 @@ Opponents:
 		  			<<include "EnemyAttacks">>
 		  			<<goto "Combat">>
 		  		<</button>>
-		  		<<print "_enemy.tag HP: _enemy.hp/_enemy.maxhp">>
+		  		<<print "_enemy.name HP: _enemy.hp/_enemy.maxhp">>
 		  	<<else>>
-		  		<<print "_enemy.tag Dead">>
+		  		<<print "_enemy.name Dead">>
 	  		<</if>>
 		<</capture>>
 		<</nobr>>
