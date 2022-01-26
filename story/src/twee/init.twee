@@ -2,45 +2,8 @@
 <<script>>
 	Config.saves.slots = 3;
 	setup.init_enemies();
-	
-	const WEAPON = "Weapon";
-	setup.gamedata.add(WEAPON, {
-		id: "dagger",
-		cost: 3,
-		att: 1,
-		name: "Dagger"
-	});
-	setup.gamedata.add(WEAPON, {
-		id: "shortsword",
-		cost: 10,
-		att: 3,
-		name: "Short Sword"
-	});
-	setup.gamedata.add(WEAPON, {
-		id: "longsword",
-		cost: 25,
-		att: 5,
-		name: "Long Sword"
-	});
-	const ARMOR = "Armor";
-	setup.gamedata.add(ARMOR, {
-		id: "leather",
-		cost: 5,
-		def: 1,
-		name: "Leather"
-	});
-	setup.gamedata.add(ARMOR, {
-		id: "chain",
-		cost: 10,
-		def: 2,
-		name: "Chain Mail"
-	});
-	setup.gamedata.add(ARMOR, {
-		id: "plate",
-		cost: 25,
-		def: 3,
-		name: "Plate Mail"
-	});
+	setup.init_weapons();
+	setup.init_armor();
 <</script>>
 <<set $explored_rooms = [new Set()]>>
 <<set $game_version="0.4.0">>
