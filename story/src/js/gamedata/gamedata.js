@@ -10,7 +10,7 @@ setup.gamedata.add = function(type, def){
         console.error("Tried to add null def.");
     }
     if (def.id == null){
-        console.error("Tried to add def with no id.");
+        console.error("Tried to add def of type " + type + " with no id.");
     }
     if (this.map[type] == null){
         this.map[type] = {};

@@ -2,20 +2,21 @@
 
 <<widget "initDungeon">>
     <<script>>
-    	let dungeon = window.init_dungeon();
-
-    	for(const floor of dungeon.floors){
-			
-		}
-
-    	State.variables.dungeon = dungeon;
-		State.variables.floor = dungeon.floors[dungeon.current_floor];
+		// do any cleanup needed
+		State.variables.floor = "dungeon.floors[dungeon.current_floor];"
 		State.variables.room = dungeon.floors[dungeon.current_floor].rooms[dungeon.current_room];
     <</script>>
 <</widget>>
 
 <<widget "tickDungeon">>
 	<<script>>
+
+		// nsew up down
+		let room = setup.gamedata.get(ROOM, State.variables.next_room_id);
+		State.variables.next_room_id = null;
+		
+
+		// assign variables, tick anything that needs it
 		let dungeon = State.variables.dungeon;
 		State.variables.floor = dungeon.floors[dungeon.current_floor];
 		State.variables.room = dungeon.floors[dungeon.current_floor].rooms[dungeon.current_room];
