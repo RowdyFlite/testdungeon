@@ -2,20 +2,23 @@
 
 <<widget "enterDungeon">>
 
-	<<enterFloor"1" "1-0,0">>
+	<<goToFloor "1" "1-0,0">>
 <</widget>>
 
 <<widget "setRoom">>
-	<<run window.alert("setRoom " + $args[0])>>
 	<<set $room = setup.gamedata.get("Room", $args[0])>>
 	<<set $event = null>>
 	<<set $encounter = null>>
 	<<run $explored_rooms.add($room.id)>>
 <</widget>>
 
-<<widget "enterFloor">>
+<<widget "goToFloor">>
 	<<set $floor = setup.gamedata.get("Floor", $args[0])>>
 	<<setRoom $args[1]>>
+<</widget>>
+
+<<widget "goToFloorCompound">>
+	<<goToFloor $args[0].split('-')[0] $args[0]>>
 <</widget>>
 
 <<widget "exitDungeon">>
