@@ -1,5 +1,4 @@
 :: Dungeon
-<<tickDungeon>>\
 
 <<if $event != null>>\
 	<<link "Starting event!" "Event">>

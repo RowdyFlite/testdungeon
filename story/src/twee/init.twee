@@ -7,5 +7,5 @@
 	setup.init_rooms();
 	setup.init_floors();
 <</script>>
-<<set $explored_rooms = [new Set()]>>
+<<set $explored_rooms = new Set()>>
 <<set $game_version="0.4.0">>

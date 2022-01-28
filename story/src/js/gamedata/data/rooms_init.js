@@ -70,7 +70,6 @@ function create_room(floor, x, y){
 }
 
 function create_exit(a, b){
-    console.log("Creating exit between " + a.id + " and " + b.id);
 	let coorda = [a.x, a.y];
 	let coordb = [b.x, b.y];
 
