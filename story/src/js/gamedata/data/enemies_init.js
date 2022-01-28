@@ -37,3 +37,4 @@ setup.init_enemies = function(){
 		gp: 2
 	});
 }
+

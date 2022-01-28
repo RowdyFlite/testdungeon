@@ -15,6 +15,7 @@
 <<widget "goToFloor">>
 	<<set $floor = setup.gamedata.get("Floor", $args[0])>>
 	<<setRoom $args[1]>>
+	<<rollEncounters $floor.id>>
 <</widget>>
 
 <<widget "goToFloorCompound">>
@@ -22,4 +23,8 @@
 <</widget>>
 
 <<widget "exitDungeon">>
+<</widget>>
+
+<<widget "rollEncounters">>
+	<<run setup.roll_encounters($args[0])>>
 <</widget>>

@@ -6,6 +6,7 @@
 	setup.init_armor();
 	setup.init_rooms();
 	setup.init_floors();
+	setup.init_encounters();
 <</script>>
 <<set $explored_rooms = new Set()>>
 <<set $game_version="0.4.0">>

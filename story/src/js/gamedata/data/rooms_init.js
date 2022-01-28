@@ -15,6 +15,9 @@ setup.init_rooms = function(){
     create_exit(setup.gamedata.get(ROOM, "1-0,0"), setup.gamedata.get(ROOM, "1-0,1"));
     create_exit(setup.gamedata.get(ROOM, "1-0,1"), setup.gamedata.get(ROOM, "1-0,2"));
 
+    setup.gamedata.get(ROOM, "1-0,0").encounters_allowed = false;
+    setup.gamedata.get(ROOM, "1-0,2").encounters_allowed = false;
+
     setup.gamedata.get(ROOM, "1-0,0").exits[DOWN] = OUT;
     setup.gamedata.get(ROOM, "1-0,2").exits[UP] = "2-0,0";
 
@@ -31,6 +34,9 @@ setup.init_rooms = function(){
 
     setup.gamedata.get(ROOM, "2-0,0").exits[DOWN] = "1-0,2";
     setup.gamedata.get(ROOM, "2-0,2").exits[UP] = "3-0,0";
+
+    setup.gamedata.get(ROOM, "2-0,0").encounters_allowed = false;
+    setup.gamedata.get(ROOM, "2-0,2").encounters_allowed = false;
 
     setup.gamedata.add(ROOM, create_room(3, 0, 0));
     setup.gamedata.add(ROOM, create_room(3, 1, 0));
@@ -50,6 +56,8 @@ setup.init_rooms = function(){
     create_exit(setup.gamedata.get(ROOM, "3-2,-2"), setup.gamedata.get(ROOM, "3-2,-1"));
     
     setup.gamedata.get(ROOM, "3-0,0").exits[DOWN] = "2-0,2";
+
+    setup.gamedata.get(ROOM, "3-0,0").encounters_allowed = false;
 }
 
 function create_room(floor, x, y){
@@ -58,6 +66,7 @@ function create_room(floor, x, y){
         floor: floor,
         x: x,
         y: y,
+        encounters_allowed: true,
         exits: {
             NORTH: null,
             SOUTH: null,
