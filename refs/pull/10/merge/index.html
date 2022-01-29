@@ -412,19 +412,36 @@ setup.init_floors = function(){
     id: "1",
     encounter_table: "rats",
     encounter_chance: 1,
-    rooms: new Set
+    rooms: new Set,
+    events: {
+      "1:0,0": {
+        id: "TestEventOnce",
+        type: "once", //once, always
+        passage:"TestEventOnce",
+        closing_text: "You cleared it!",
+      }
+    }
   });
   setup.gamedata.add(FLOOR, {
     id: "2",
     encounter_table: "ratsgobbo",
     encounter_chance: 0.5,
-    rooms: new Set
+    rooms: new Set,
+    events: {}
   });
   setup.gamedata.add(FLOOR, {
     id: "3",
     encounter_table: "goblins",
     encounter_chance: 0.5,
-    rooms: new Set
+    rooms: new Set,
+    events: {
+      "3:2,-1":{
+        id: "TestEventAlways",
+        type: "always", //once, always
+        passage:"TestEventAlways",
+        closing_text: "You cleared it!",
+      }
+    }
   });
 }
 
@@ -787,7 +804,6 @@ Opponents:
 &lt;&lt;link &quot;Town&quot; &quot;Town&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="12" name="Dungeon" tags="" position="225,225" size="100,100">&lt;&lt;if $event != null&gt;&gt;\
 	&lt;&lt;link &quot;Starting event!&quot; &quot;Event&quot;&gt;&gt;
 		&lt;&lt;startEvent $event&gt;&gt;
-		&lt;&lt;set $event=null&gt;&gt;
 	&lt;&lt;/link&gt;&gt;
 &lt;&lt;elseif $encounter != null&gt;&gt;\
 	&lt;&lt;link &quot;Starting combat!&quot; &quot;Combat&quot;&gt;&gt;
@@ -888,6 +904,7 @@ Opponents:
 		&lt;&lt;/if&gt;&gt;
 	&lt;&lt;/nobr&gt;&gt;</tw-passagedata><tw-passagedata pid="15" name="DungeonWidgets" tags="widget" position="600,225" size="100,100">&lt;&lt;widget &quot;enterDungeon&quot;&gt;&gt;
 	&lt;&lt;set $encounters = {}&gt;&gt;
+	&lt;&lt;set $events = {}&gt;&gt;
 	&lt;&lt;set $explored_rooms = new Set()&gt;&gt;
 	&lt;&lt;goToFloor &quot;1&quot; &quot;1:0,0&quot;&gt;&gt;
 &lt;&lt;/widget&gt;&gt;
@@ -902,12 +919,19 @@ Opponents:
 	&lt;&lt;else&gt;&gt;
 		&lt;&lt;set $encounter = null&gt;&gt;
 	&lt;&lt;/if&gt;&gt;
+	&lt;&lt;if $room.id in $events&gt;&gt;
+		&lt;&lt;set $event = $events[$room.id]&gt;&gt;
+		&lt;&lt;run delete $events[$room.id]&gt;&gt;
+	&lt;&lt;else&gt;&gt;
+		&lt;&lt;set $event = null&gt;&gt;
+	&lt;&lt;/if&gt;&gt;
 &lt;&lt;/widget&gt;&gt;
 
 &lt;&lt;widget &quot;goToFloor&quot;&gt;&gt;
 	&lt;&lt;set $floor = setup.gamedata.get(&quot;Floor&quot;, $args[0])&gt;&gt;
 	&lt;&lt;setRoom $args[1]&gt;&gt;
 	&lt;&lt;rollEncounters $floor.id&gt;&gt;
+	&lt;&lt;set $events = clone($floor.events)&gt;&gt;
 &lt;&lt;/widget&gt;&gt;
 
 &lt;&lt;widget &quot;goToFloorCompound&quot;&gt;&gt;
@@ -926,15 +950,11 @@ Opponents:
 		&lt;&lt;if $event.type == &quot;once&quot;&gt;&gt;
 			&lt;&lt;run $flags.add($event.id)&gt;&gt;
 		&lt;&lt;/if&gt;&gt;
-		&lt;&lt;set $dungeon.floors[$dungeon.current_floor].rooms[$dungeon.current_room].event = null&gt;&gt;
+		&lt;&lt;run delete $events[$room.id]&gt;&gt;
+		&lt;&lt;set $event = null&gt;&gt;
 	&lt;&lt;/link&gt;&gt;
 &lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="17" name="EventWidgets" tags="widget" position="850,225" size="100,100">&lt;&lt;widget &quot;startEvent&quot;&gt;&gt;\
-    &lt;&lt;script&gt;&gt;
-        let event = State.variables.args[0];
-        event.finished = false;
-
-        State.variables.current_event = event;
-    &lt;&lt;/script&gt;&gt;\
+    &lt;&lt;set $event.finished = false&gt;&gt;
 &lt;&lt;/widget&gt;&gt;</tw-passagedata><tw-passagedata pid="18" name="TestEventAlways" tags="" position="975,225" size="100,100">You&#39;ve reached the test event! This one always plays!
 &lt;&lt;link &quot;Clear&quot; &quot;Event&quot;&gt;&gt;
     &lt;&lt;set $event.finished = true&gt;&gt;
