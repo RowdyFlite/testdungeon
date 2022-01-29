@@ -18,7 +18,12 @@
 		<<set $encounter = null>>
 	<</if>>
 	<<if $room.id in $events>>
-		<<set $event = $events[$room.id]>>
+		<<set _event = $events[$room.id]>>
+		<<if _event.type == "once" && $flags.has(_event.id)>>
+			<<set $event = null>>
+		<<else>>
+			<<set $event = _event>>
+		<</if>>
 		<<run delete $events[$room.id]>>
 	<<else>>
 		<<set $event = null>>
