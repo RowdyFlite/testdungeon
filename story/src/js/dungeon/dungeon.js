@@ -20,7 +20,6 @@ setup.roll_encounters = function(floor_id){
 
 		if (room.encounters_allowed && roll < floor.encounter_chance){
 			encounters[room_id] = choose_encounter(encounter_table, total);
-			window.alert("Room id: " + room_id);
 		}
 	}
 	State.variables.encounters = encounters;
