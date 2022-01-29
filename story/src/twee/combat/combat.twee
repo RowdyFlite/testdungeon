@@ -23,7 +23,6 @@
 
 :: CombatWin
 <<link "You won!" "Dungeon">>\
-	<<set $dungeon.floors[$dungeon.current_floor].rooms[$dungeon.current_room].encounter = null>>
 <</link>>
 <<set _xp = 0>>\
 <<set _gp = 0>>\
@@ -53,9 +52,9 @@ Opponents:
 		  			<<include "EnemyAttacks">>
 		  			<<goto "Combat">>
 		  		<</button>>
-		  		<<print "_enemy.tag HP: _enemy.hp/_enemy.maxhp">>
+		  		<<print "_enemy.name HP: _enemy.hp/_enemy.maxhp">>
 		  	<<else>>
-		  		<<print "_enemy.tag Dead">>
+		  		<<print "_enemy.name Dead">>
 	  		<</if>>
 		<</capture>>
 		<</nobr>>

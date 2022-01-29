@@ -1,60 +1,51 @@
 :: DungeonNav
 	<<nobr>>
-		<<if $room.start>>
-			<<if $floor.id == 1>>
-				<<link "Exit Dungeon">>
-					<<exitDungeon>>
-					<<goto "DungeonEntrance">>
-				<</link>>
-			<<else>>
-				<<link "Previous Floor">>
-					<<goToPrevFloor>>
-					<<goto "Dungeon">>
-				<</link>>
-			<</if>>
-		<</if>>
-		<<if $room.end>>\
-			<<if $floor.id != $dungeon.max_floor>>
-				<<link "Next Floor">>
-					<<goToNextFloor>>
-					<<goto "Dungeon">>
-				<</link>>
-			<</if>>
-		<</if>>
 		<br>
-		<<if $room.north>>
-			&emsp;<<link "North">>
-				<<moveIntoRoom $room.north>>
-				<<goto "Dungeon">>
+		<<if $room.exits["North"] != null>>
+			&emsp;<<link "North" "Dungeon">>
+				<<setRoom $room.exits["North"]>>
 			<</link>>
 		<<else>>
 			&emsp;North
 		<</if>>
 		<br>
-		<<if $room.west>>
-			<<link "West">>
-				<<moveIntoRoom $room.west>>
-				<<goto "Dungeon">>
+		<<if $room.exits["West"] != null>>
+			<<link "West" "Dungeon">>
+				<<setRoom $room.exits["West"]>>
 			<</link>>
 		<<else>>
 			West
 		<</if>>
-		<<if $room.east>>
-			<<link "East">>
-				<<moveIntoRoom $room.east>>
-				<<goto "Dungeon">>
+		<<if $room.exits["East"] != null>>
+			<<link "East" "Dungeon">>
+				<<setRoom $room.exits["East"]>>
 			<</link>>
 		<<else>>
 			East
 		<</if>>
 		<br>
-		<<if $room.south>>
-			&emsp;<<link "South">>
-				<<moveIntoRoom $room.south>>
-				<<goto "Dungeon">>
+		<<if $room.exits["South"] != null>>
+			&emsp;<<link "South" "Dungeon">>
+				<<setRoom $room.exits["South"]>>
 			<</link>>
 		<<else>>
 			&emsp;South
 		<</if>>
 		<br>
+		<<if $room.exits["Down"] != null>>
+			<<if $floor.id == "1">>
+				<<link "Exit Dungeon" "DungeonEntrance">>
+					<<exitDungeon>>
+				<</link>>
+			<<else>>
+				<<link "Previous Floor" "Dungeon">>
+				<<goToFloorCompound $room.exits["Down"]>>
+				<</link>>
+			<</if>>
+		<</if>>
+		<<if $room.exits["Up"] != null>>\
+			<<link "Next Floor" "Dungeon">>
+				<<goToFloorCompound $room.exits["Up"]>>
+			<</link>>
+		<</if>>
 	<</nobr>>

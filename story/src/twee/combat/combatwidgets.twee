@@ -9,8 +9,8 @@
         let player_combatant = {
             hp: player.hp,
             maxhp: player.maxhp,
-            att: player.weapon == null ? player.att : player.att + setup.gamedata.weapons[player.weapon].att,
-            def: player.armor == null ? player.def : player.def + setup.gamedata.armors[player.armor].def
+            att: player.weapon == null ? player.att : player.att + setup.gamedata.get("Weapon", player.weapon).att,
+            def: player.armor == null ? player.def : player.def + setup.gamedata.get("Armor", player.armor).def
         };
         combat.addPlayer("player", player_combatant);
 

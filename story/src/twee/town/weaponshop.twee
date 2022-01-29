@@ -9,7 +9,7 @@ You have $player.gp gold.
     "longsword"
 ]>>
 <<for _id range _weapons>>
-    <<set _weapon = setup.gamedata.weapons[_id]>>
+    <<set _weapon = setup.gamedata.get("Weapon", _id)>>
         <<capture _weapon>>
         _weapon.name: +_weapon.att damage: _weapon.cost gp
         <<if $player.gp >= _weapon.cost && $player.weapon != _weapon.id>>
@@ -25,7 +25,7 @@ You have $player.gp gold.
 <<if $player.weapon == null>>
     You don't have a weapon.
 <<else>>
-    <<set _weap_name = setup.gamedata.weapons[$player.weapon].name>>
+    <<set _weap_name = setup.gamedata.get("Weapon", $player.weapon).name>>
     Current weapon: _weap_name
 <</if>>
 

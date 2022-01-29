@@ -1,5 +1,4 @@
 :: Dungeon
-<<tickDungeon>>\
 
 <<if $event != null>>\
 	<<link "Starting event!" "Event">>
@@ -8,6 +7,7 @@
 <<elseif $encounter != null>>\
 	<<link "Starting combat!" "Combat">>
 		<<startCombat $encounter>>
+		<<set $encounter=null>>
 	<</link>>
 <<else>>
 	Floor: <<print $floor.id>>

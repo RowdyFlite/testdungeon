@@ -1,67 +1,49 @@
 ::DungeonWidgets [widget]
 
-<<widget "initDungeon">>
-    <<script>>
-    	let dungeon = window.init_dungeon();
-
-    	for(const floor of dungeon.floors){
-			
-		}
-
-    	State.variables.dungeon = dungeon;
-		State.variables.floor = dungeon.floors[dungeon.current_floor];
-		State.variables.room = dungeon.floors[dungeon.current_floor].rooms[dungeon.current_room];
-    <</script>>
+<<widget "enterDungeon">>
+	<<set $encounters = {}>>
+	<<set $events = {}>>
+	<<set $explored_rooms = new Set()>>
+	<<goToFloor "1" "1:0,0">>
 <</widget>>
 
-<<widget "tickDungeon">>
-	<<script>>
-		let dungeon = State.variables.dungeon;
-		State.variables.floor = dungeon.floors[dungeon.current_floor];
-		State.variables.room = dungeon.floors[dungeon.current_floor].rooms[dungeon.current_room];
-		State.variables.explored_rooms[dungeon.current_floor].add(dungeon.current_room);
-		State.variables.encounter = State.variables.room.encounter;
-		if (State.variables.room.event == null || (State.variables.room.event.type == "once" && State.variables.flags.has(State.variables.room.event.id))){
-			State.variables.event = null;			
-		}
-		else {
-			State.variables.event = State.variables.room.event;
-		}		
+<<widget "setRoom">>
+	<<set $room = setup.gamedata.get("Room", $args[0])>>
+	<<set $event = null>>
+	<<run $explored_rooms.add($room.id)>>
+	<<if $room.id in $encounters>>
+		<<set $encounter = $encounters[$room.id]>>
+		<<run delete $encounters[$room.id]>>
+	<<else>>
+		<<set $encounter = null>>
+	<</if>>
+	<<if $room.id in $events>>
+		<<set _event = $events[$room.id]>>
+		<<if _event.type == "once" && $flags.has(_event.id)>>
+			<<set $event = null>>
+		<<else>>
+			<<set $event = _event>>
+		<</if>>
+		<<run delete $events[$room.id]>>
+	<<else>>
+		<<set $event = null>>
+	<</if>>
+<</widget>>
 
-	<</script>>
+<<widget "goToFloor">>
+	<<set $floor = setup.gamedata.get("Floor", $args[0])>>
+	<<setRoom $args[1]>>
+	<<rollEncounters $floor.id>>
+	<<set $events = clone($floor.events)>>
+<</widget>>
+
+<<widget "goToFloorCompound">>
+	<<goToFloor $args[0].split(':')[0] $args[0]>>
 <</widget>>
 
 <<widget "exitDungeon">>
-	<<script>>
-		State.variables.dungeon = null;
-		State.variables.floor = null;
-		State.variables.room = null;
-	<</script>>
 <</widget>>
 
-<<widget "moveIntoRoom">>
-	<<script>>
-		let newRoomId = State.variables.args[0];
-		State.variables.dungeon.current_room = newRoomId;
-	<</script>>
-<</widget>>
-
-<<widget "goToNextFloor">>
-	<<script>>
-		let dungeon = State.variables.dungeon;
-		dungeon.current_floor++;
-		window.init_encounters(dungeon.floors[dungeon.current_floor]);
-		dungeon.current_room = dungeon.floors[dungeon.current_floor].start;
-		if (State.variables.explored_rooms.length <= dungeon.current_floor){
-			State.variables.explored_rooms.push(new Set());
-		}
-	<</script>>
-<</widget>>
-
-<<widget "goToPrevFloor">>
-	<<script>>
-		let dungeon = State.variables.dungeon;
-		dungeon.current_floor--;
-		dungeon.current_room = dungeon.floors[dungeon.current_floor].end;	
-	<</script>>
+<<widget "rollEncounters">>
+	<<run setup.roll_encounters($args[0])>>
 <</widget>>
