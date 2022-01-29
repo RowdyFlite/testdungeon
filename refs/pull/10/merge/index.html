@@ -920,7 +920,12 @@ Opponents:
 		&lt;&lt;set $encounter = null&gt;&gt;
 	&lt;&lt;/if&gt;&gt;
 	&lt;&lt;if $room.id in $events&gt;&gt;
-		&lt;&lt;set $event = $events[$room.id]&gt;&gt;
+		&lt;&lt;set _event = $events[$room.id]&gt;&gt;
+		&lt;&lt;if _event.type == &quot;once&quot; &amp;&amp; $flags.has(_event.id)&gt;&gt;
+			&lt;&lt;set $event = null&gt;&gt;
+		&lt;&lt;else&gt;&gt;
+			&lt;&lt;set $event = _event&gt;&gt;
+		&lt;&lt;/if&gt;&gt;
 		&lt;&lt;run delete $events[$room.id]&gt;&gt;
 	&lt;&lt;else&gt;&gt;
 		&lt;&lt;set $event = null&gt;&gt;
