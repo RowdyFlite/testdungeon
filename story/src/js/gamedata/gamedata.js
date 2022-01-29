@@ -28,9 +28,15 @@ setup.gamedata.get = function(type, id){
     if (type == null){
         console.error("Tried to get with null type.");
     }
+    if (!this.map.hasOwnProperty(type)){
+        console.error("Tried to get with type " + type + " but there is no gamedata.");
+    }
     return this.map[type][id];
 };
 
-const ENEMY = "Enemy";
-const ROOM = "Room";
-const FLOOR = "Floor";
+setup.gamedata.getall = function(type){
+    if (!this.map.hasOwnProperty(type)){
+        console.error("Tried to getall with type " + type + " but there is no gamedata.");
+    }
+    return this.map[type];
+}

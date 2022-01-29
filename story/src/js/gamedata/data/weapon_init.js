@@ -1,5 +1,6 @@
+const WEAPON = "Weapon";
+
 setup.init_weapons = function(){
-    const WEAPON = "Weapon";
 	setup.gamedata.add(WEAPON, {
 		id: "dagger",
 		cost: 3,

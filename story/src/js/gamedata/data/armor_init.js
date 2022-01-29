@@ -1,5 +1,6 @@
+const ARMOR = "Armor";
+
 setup.init_armor = function(){
-	const ARMOR = "Armor";
 	setup.gamedata.add(ARMOR, {
 		id: "leather",
 		cost: 5,

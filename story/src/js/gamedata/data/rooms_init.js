@@ -1,3 +1,5 @@
+const ROOM = "Room";
+
 const NORTH = "North";
 const EAST = "East";
 const SOUTH = "South";
@@ -7,7 +9,6 @@ const DOWN = "Down";
 const OUT = "Out";
 
 setup.init_rooms = function(){
-    const ROOM = "Room";
 	setup.gamedata.add(ROOM, create_room(1, 0, 0));
     setup.gamedata.add(ROOM, create_room(1, 0, 1));
     setup.gamedata.add(ROOM, create_room(1, 0, 2));

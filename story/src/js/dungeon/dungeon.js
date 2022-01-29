@@ -8,18 +8,28 @@ setup.roll_encounters = function(floor_id){
 	for (const encounter of encounter_table.encounters){
 		total += encounter.chance;
 	}
-	window.alert("Rolling for " + rooms.length + " rooms.");
-	for (const room_id in rooms){
+
+	for (const room_id of rooms){
 		let room = setup.gamedata.get(ROOM, room_id);
-		if (room.encounters_allowed && Math.random() < floor.encounter_chance){
-			let roll = Math.floor(Math.random() * total);
+		
+		if (!room.encounters_allowed){
+			continue;
+		}
+		
+		let roll = Math.random();
+		window.alert(`Room ID: ${room.id}. Rolled ${roll}. Encounter rate is ${floor.encounter_chance}`);
+
+
+		if (room.encounters_allowed && roll < floor.encounter_chance){
+			roll = Math.floor(Math.random() * total);
 			for (const encounter of encounter_table.encounters){
 				if (roll <= encounter.chance){
-					window.alert("Adding encounter to room " + room_id);
 					encounters[room_id] = encounter.tags;
+					continue;
 				}
 			}
 		}
+		window.alert(`Roll to choose encounter: ${roll}. Encounter chosen: ${encounters[room_id]}`);
 	}
 	State.variables.encounters = encounters;
 }

@@ -1,5 +1,6 @@
+const ENEMY = "Enemy";
+
 setup.init_enemies = function(){
-	const ENEMY = "Enemy";
 	setup.gamedata.add(ENEMY, {
 		id: "rat",
 		maxhp: 1,
@@ -37,4 +38,3 @@ setup.init_enemies = function(){
 		gp: 2
 	});
 }
-
