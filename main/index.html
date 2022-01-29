@@ -198,260 +198,434 @@ window.start_combat = function(){
 	return combat;
 }
 /* twine-user-script #2: "dungeon.js" */
-function create_floor(id, rooms, start, end, encounter_table){
-	rooms[start].start = true;
-	rooms[end].end = true;
-	return {id: id, rooms: rooms, start: start, end: end, encounter_table: encounter_table};
-}
-
-function create_room(id){
-	return {
-		id: id,
-		north: null,
-		east: null,
-		west: null,
-		south: null,
-		start: false,
-		end: false,
-		encounter: null
-	};
-}
-
-function create_exit(a, b){
-	let coorda = a.id.split(',').map(Number);
-	let coordb = b.id.split(',').map(Number);
-
-	if (Math.abs(coorda[0] - coordb[0]) == 1){
-		if (coorda[0] > coordb[0]){
-			a.west = b.id;
-			b.east = a.id;
-		}
-		else{
-			a.east = b.id;
-			b.west = a.id;
-		}
-	}
-	else if (Math.abs(coorda[1] - coordb[1]) == 1){
-		if (coorda[1] > coordb[1]){
-			a.south = b.id;
-			b.north = a.id;
-		}
-		else{
-			a.north = b.id;
-			b.south = a.id;
-		}
-	}
-}
-
-function floor1(){
-	let rooms = {};
-
-	rooms["0,0"] = create_room("0,0");
-	rooms["0,1"] = create_room("0,1");
-	rooms["0,2"] = create_room("0,2");
-
-	create_exit(rooms["0,0"], rooms["0,1"]);
-	create_exit(rooms["0,1"], rooms["0,2"]);
-
-	rooms["0,1"].event = {
-		id: "TestEventOnce",
-		type: "once", //once, always
-		passage:"TestEventOnce",
-		closing_text: "You cleared it!"	
-	};
-
-	let encounter_table = [];
-	encounter_table.push({
-		chance: 5,
-		tags: {
-			"rat": 1
-		}
-	});
-	encounter_table.push({
-		chance: 2,
-		tags: {
-			"rat": 2
-		}
-	});
-	encounter_table.push({
-		chance: 1,
-		tags: {
-			"rat": 3
-		}
-	});
-
-	return create_floor(1, rooms, "0,0", "0,2", encounter_table);
-}
-
-function floor2(){
-	let rooms = {};
-
-	rooms["0,0"] = create_room("0,0");
-	rooms["0,1"] = create_room("0,1");
-	rooms["0,2"] = create_room("0,2");
-	rooms["1,1"] = create_room("1,1");
-	rooms["-1,1"] = create_room("-1,1");
-
-	create_exit(rooms["0,0"], rooms["0,1"]);
-	create_exit(rooms["0,1"], rooms["0,2"]);
-	create_exit(rooms["0,1"], rooms["-1,1"]);
-	create_exit(rooms["0,1"], rooms["1,1"]);
-
-	let encounter_table = [];
-	encounter_table.push({
-		chance: 5,
-		tags: {
-			"rat": 2
-		}
-	});
-	encounter_table.push({
-		chance: 2,
-		tags: {
-			"kobold": 1
-		}
-	});
-	encounter_table.push({
-		chance: 1,
-		tags: {
-			"rat": 1,
-			"kobold": 1
-		}
-	});
-
-	return create_floor(2, rooms, "0,0", "0,2", encounter_table);
-}
-
-function floor3(){
-	let rooms = {};
-
-	rooms["0,0"] = create_room("0,0");
-	rooms["1,0"] = create_room("1,0");
-	rooms["2,0"] = create_room("2,0");
-	rooms["3,0"] = create_room("3,0");
-	rooms["3,-1"] = create_room("3,-1");
-	rooms["3,-2"] = create_room("3,-2");
-	rooms["2,-2"] = create_room("2,-2");
-	rooms["2,-1"] = create_room("2,-1");
-
-	create_exit(rooms["0,0"], rooms["1,0"]);
-	create_exit(rooms["1,0"], rooms["2,0"]);
-	create_exit(rooms["2,0"], rooms["3,0"]);
-	create_exit(rooms["3,0"], rooms["3,-1"]);
-	create_exit(rooms["3,-1"], rooms["3,-2"]);
-	create_exit(rooms["3,-2"], rooms["2,-2"]);
-	create_exit(rooms["2,-2"], rooms["2,-1"]);
-
-	rooms["2,-1"].event = {
-		id: "TestEventAlways",
-		type: "always", //once, always
-		passage:"TestEventAlways",
-		closing_text: "You cleared it!"	
-	};
-
-	let encounter_table = [];
-	encounter_table.push({
-		chance: 5,
-		tags: {
-			"goblin": 1
-		}
-	});
-	encounter_table.push({
-		chance: 2,
-		tags: {
-			"goblin": 2
-		}
-	});
-	encounter_table.push({
-		chance: 1,
-		tags: {
-			"goblin": 2,
-			"goblin shaman": 1
-		}
-	});
-
-	return create_floor(3, rooms, "0,0", "2,-1", encounter_table);
-}
-
-window.init_encounters = function(floor){
-	let encounter_chance = .5;
-
+setup.roll_encounters = function(floor_id){
+	let floor = setup.gamedata.get(FLOOR, floor_id);
+	let rooms = floor.rooms;
+	let encounter_table = setup.gamedata.get(ENCOUNTER, floor.encounter_table);
+	let encounters = {};
 	let total = 0;
-	for (const encounter of floor.encounter_table){
+
+	for (const encounter of encounter_table.encounters){
 		total += encounter.chance;
 	}
 
-	for (const room_id in floor.rooms){
+	for (const room_id of rooms){
+		let room = setup.gamedata.get(ROOM, room_id);
+		
+		if (!room.encounters_allowed){
+			continue;
+		}
+		
+		let roll = Math.random();
 
-		let room = floor.rooms[room_id];
-		if (!room.start && !room.end && Math.random() < encounter_chance){
-			let roll = Math.floor(Math.random() * total);
-			for (const encounter of floor.encounter_table){
-				if (roll <= encounter.chance){
-					room.encounter = encounter.tags;
-				}
-			}
+		if (room.encounters_allowed && roll < floor.encounter_chance){
+			encounters[room_id] = choose_encounter(encounter_table, total);
 		}
 	}
+	State.variables.encounters = encounters;
 }
 
-window.init_dungeon = function(){
-	let floors = [];
-
-	floors.push(floor1());
-	floors.push(floor2());
-	floors.push(floor3());
-
-	return {
-		floors: floors,
-		current_floor: 0,
-		current_room: "0,0",
-		max_floor: floors.length
-	}
+function choose_encounter(encounter_table, total){
+	let roll = Math.floor(Math.random() * total);
+	for (const encounter of encounter_table.encounters){
+		if (roll <= encounter.chance){
+			return encounter.tags;
+		}
+		roll -= encounter.chance;
+	}	
 }
 /* twine-user-script #3: "enemies.js" */
 // set up the dict of enemies.
-
-function build_enemy(map, tag, hp, mp, att, def, xp, gp){
-	map[tag] = {
-		tag: tag,
-		hp: hp,
-		maxhp: hp,
-		mp: mp,
-		att: att,
-		def: def,
-		xp: xp,
-		gp: gp
-	}
-}
-
-
-setup.init_enemies = function(){
-	let enemy_map = {};
-
-	build_enemy(enemy_map, "rat", 1, 0, 1, 0, 1, 0);
-	build_enemy(enemy_map, "kobold", 3, 0, 2, 0, 2, 1);
-	build_enemy(enemy_map, "goblin", 5, 0, 3, 1, 4, 1);
-	build_enemy(enemy_map, "goblin shaman", 1, 5, 1, 0, 3, 2);
-
-	setup.enemy_map = enemy_map;
-}
 
 setup.create_enemy_party = function(tag_map){
 	let counter = 0;
 	let party = [];
 
 	for (const tag in tag_map) {
-		let template = setup.enemy_map[tag];
+		let template = setup.gamedata.get(ENEMY, tag);
 		for (let i = 0; i < tag_map[tag]; i++){
 			let id = tag + counter++;
 			let enemy = Object.assign({}, template);
+			enemy.name = tag;
 			enemy.id = id;
+			enemy.hp = enemy.maxhp;
 			party.push(enemy);
 		}
 	}
 	return party;
 }
-/* twine-user-script #4: "player.js" */
+/* twine-user-script #4: "armor_init.js" */
+const ARMOR = "Armor";
+
+setup.init_armor = function(){
+	setup.gamedata.add(ARMOR, {
+		id: "leather",
+		cost: 5,
+		def: 1,
+		name: "Leather"
+	});
+	setup.gamedata.add(ARMOR, {
+		id: "chain",
+		cost: 10,
+		def: 2,
+		name: "Chain Mail"
+	});
+	setup.gamedata.add(ARMOR, {
+		id: "plate",
+		cost: 25,
+		def: 3,
+		name: "Plate Mail"
+	});
+}
+/* twine-user-script #5: "encounters_init.js" */
+const ENCOUNTER = "Encounter";
+
+setup.init_encounters = function(){
+	create_rats_encounter_table();
+	create_ratsgobbo_encounter_table();
+	create_goblins_encounter_table();
+}
+
+function create_rats_encounter_table(){
+	let encounter_table = create_encounter_table("rats");
+	encounter_table.encounters.push({
+		chance: 4,
+		tags: {
+			"rat": 1
+		}
+	});
+	encounter_table.encounters.push({
+		chance: 2,
+		tags: {
+			"rat": 2
+		}
+	});
+	encounter_table.encounters.push({
+		chance: 1,
+		tags: {
+			"rat": 3
+		}
+	});
+	setup.gamedata.add(ENCOUNTER, encounter_table);
+}
+
+function create_ratsgobbo_encounter_table(){
+	let encounter_table = create_encounter_table("ratsgobbo");
+	encounter_table.encounters.push({
+		chance: 5,
+		tags: {
+			"rat": 2
+		}
+	});
+	encounter_table.encounters.push({
+		chance: 2,
+		tags: {
+			"kobold": 1
+		}
+	});
+	encounter_table.encounters.push({
+		chance: 1,
+		tags: {
+			"rat": 1,
+			"kobold": 1
+		}
+	});
+	setup.gamedata.add(ENCOUNTER, encounter_table);
+}
+
+function create_goblins_encounter_table(){
+	let encounter_table = create_encounter_table("goblins");
+	encounter_table.encounters.push({
+		chance: 5,
+		tags: {
+			"goblin": 1
+		}
+	});
+	encounter_table.encounters.push({
+		chance: 2,
+		tags: {
+			"goblin": 2
+		}
+	});
+	encounter_table.encounters.push({
+		chance: 1,
+		tags: {
+			"goblin": 2,
+			"goblin shaman": 1
+		}
+	});
+	setup.gamedata.add(ENCOUNTER, encounter_table);
+}
+
+function create_encounter_table(id){
+	return {
+		id: id,
+		encounters: []
+	}
+}
+/* twine-user-script #6: "enemies_init.js" */
+const ENEMY = "Enemy";
+
+setup.init_enemies = function(){
+	setup.gamedata.add(ENEMY, {
+		id: "rat",
+		maxhp: 1,
+		mp: 0,
+		att: 1,
+		def: 0,
+		xp: 1,
+		gp: 0
+	});
+	setup.gamedata.add(ENEMY, {
+		id: "kobold",
+		maxhp: 3,
+		mp: 0,
+		att: 2,
+		def: 0,
+		xp: 2,
+		gp: 1
+	});
+	setup.gamedata.add(ENEMY, {
+		id: "goblin",
+		maxhp: 5,
+		mp: 0,
+		att: 3,
+		def: 1,
+		xp: 4,
+		gp: 1
+	});
+    setup.gamedata.add(ENEMY, {
+		id: "goblin shaman",
+		maxhp: 1,
+		mp: 5,
+		att: 1,
+		def: 0,
+		xp: 3,
+		gp: 2
+	});
+}
+/* twine-user-script #7: "floors_init.js" */
+const FLOOR = "Floor";
+
+setup.init_floors = function(){
+  setup.gamedata.add(FLOOR, {
+    id: "1",
+    encounter_table: "rats",
+    encounter_chance: 1,
+    rooms: new Set,
+    events: {
+      "1:0,0": {
+        id: "TestEventOnce",
+        type: "once", //once, always
+        passage:"TestEventOnce",
+        closing_text: "You cleared it!",
+      }
+    }
+  });
+  setup.gamedata.add(FLOOR, {
+    id: "2",
+    encounter_table: "ratsgobbo",
+    encounter_chance: 0.5,
+    rooms: new Set,
+    events: {}
+  });
+  setup.gamedata.add(FLOOR, {
+    id: "3",
+    encounter_table: "goblins",
+    encounter_chance: 0.5,
+    rooms: new Set,
+    events: {
+      "3:2,-1":{
+        id: "TestEventAlways",
+        type: "always", //once, always
+        passage:"TestEventAlways",
+        closing_text: "You cleared it!",
+      }
+    }
+  });
+}
+
+setup.assign_rooms_to_floors = function(){
+  let rooms = setup.gamedata.getall(ROOM);
+  for (const room_id in rooms){
+    let floor = room_id.split(':')[0];
+    setup.gamedata.get(FLOOR, floor).rooms.add(room_id);
+  }
+}
+/* twine-user-script #8: "rooms_init.js" */
+const ROOM = "Room";
+
+const NORTH = "North";
+const EAST = "East";
+const SOUTH = "South";
+const WEST = "West";
+const UP = "Up";
+const DOWN = "Down";
+const OUT = "Out";
+
+setup.init_rooms = function(){
+	setup.gamedata.add(ROOM, create_room(1, 0, 0));
+    setup.gamedata.add(ROOM, create_room(1, 0, 1));
+    setup.gamedata.add(ROOM, create_room(1, 0, 2));
+
+    create_exit(setup.gamedata.get(ROOM, "1:0,0"), setup.gamedata.get(ROOM, "1:0,1"));
+    create_exit(setup.gamedata.get(ROOM, "1:0,1"), setup.gamedata.get(ROOM, "1:0,2"));
+
+    setup.gamedata.get(ROOM, "1:0,0").encounters_allowed = false;
+    setup.gamedata.get(ROOM, "1:0,2").encounters_allowed = false;
+
+    setup.gamedata.get(ROOM, "1:0,0").exits[DOWN] = OUT;
+    setup.gamedata.get(ROOM, "1:0,2").exits[UP] = "2:0,0";
+
+    setup.gamedata.add(ROOM, create_room(2, 0, 0));
+    setup.gamedata.add(ROOM, create_room(2, 0, 1));
+    setup.gamedata.add(ROOM, create_room(2, 1, 1));
+    setup.gamedata.add(ROOM, create_room(2, -1, 1));
+    setup.gamedata.add(ROOM, create_room(2, 0, 2));
+
+    create_exit(setup.gamedata.get(ROOM, "2:0,0"), setup.gamedata.get(ROOM, "2:0,1"));
+    create_exit(setup.gamedata.get(ROOM, "2:0,1"), setup.gamedata.get(ROOM, "2:0,2"));
+    create_exit(setup.gamedata.get(ROOM, "2:0,1"), setup.gamedata.get(ROOM, "2:-1,1"));
+    create_exit(setup.gamedata.get(ROOM, "2:0,1"), setup.gamedata.get(ROOM, "2:1,1"));
+
+    setup.gamedata.get(ROOM, "2:0,0").exits[DOWN] = "1:0,2";
+    setup.gamedata.get(ROOM, "2:0,2").exits[UP] = "3:0,0";
+
+    setup.gamedata.get(ROOM, "2:0,0").encounters_allowed = false;
+    setup.gamedata.get(ROOM, "2:0,2").encounters_allowed = false;
+
+    setup.gamedata.add(ROOM, create_room(3, 0, 0));
+    setup.gamedata.add(ROOM, create_room(3, 1, 0));
+    setup.gamedata.add(ROOM, create_room(3, 2, 0));
+    setup.gamedata.add(ROOM, create_room(3, 3, 0));
+    setup.gamedata.add(ROOM, create_room(3, 3, -1));
+    setup.gamedata.add(ROOM, create_room(3, 3, -2));
+    setup.gamedata.add(ROOM, create_room(3, 2, -2));
+    setup.gamedata.add(ROOM, create_room(3, 2, -1));
+
+    create_exit(setup.gamedata.get(ROOM, "3:0,0"), setup.gamedata.get(ROOM, "3:1,0"));
+    create_exit(setup.gamedata.get(ROOM, "3:1,0"), setup.gamedata.get(ROOM, "3:2,0"));
+    create_exit(setup.gamedata.get(ROOM, "3:2,0"), setup.gamedata.get(ROOM, "3:3,0"));
+    create_exit(setup.gamedata.get(ROOM, "3:3,0"), setup.gamedata.get(ROOM, "3:3,-1"));
+    create_exit(setup.gamedata.get(ROOM, "3:3,-1"), setup.gamedata.get(ROOM, "3:3,-2"));
+    create_exit(setup.gamedata.get(ROOM, "3:3,-2"), setup.gamedata.get(ROOM, "3:2,-2"));
+    create_exit(setup.gamedata.get(ROOM, "3:2,-2"), setup.gamedata.get(ROOM, "3:2,-1"));
+    
+    setup.gamedata.get(ROOM, "3:0,0").exits[DOWN] = "2:0,2";
+
+    setup.gamedata.get(ROOM, "3:0,0").encounters_allowed = false;
+}
+
+function create_room(floor, x, y){
+    return {
+        id: `${floor}:${x},${y}`,
+        floor: floor,
+        x: x,
+        y: y,
+        encounters_allowed: true,
+        exits: {
+            NORTH: null,
+            SOUTH: null,
+            EAST: null,
+            WEST: null,
+            UP: null,
+            DOWN: null
+        }
+    };
+}
+
+function create_exit(a, b){
+	let coorda = [a.x, a.y];
+	let coordb = [b.x, b.y];
+
+	if (Math.abs(coorda[0] - coordb[0]) == 1){
+		if (coorda[0] > coordb[0]){
+			a.exits[WEST] = b.id;
+			b.exits[EAST] = a.id;
+		}
+		else{
+			a.exits[EAST] = b.id;
+			b.exits[WEST] = a.id;
+		}
+	}
+	else if (Math.abs(coorda[1] - coordb[1]) == 1){
+		if (coorda[1] > coordb[1]){
+			a.exits[SOUTH] = b.id;
+			b.exits[NORTH] = a.id;
+		}
+		else{
+			a.exits[NORTH] = b.id;
+			b.exits[SOUTH] = a.id;
+		}
+	}
+}
+/* twine-user-script #9: "weapon_init.js" */
+const WEAPON = "Weapon";
+
+setup.init_weapons = function(){
+	setup.gamedata.add(WEAPON, {
+		id: "dagger",
+		cost: 3,
+		att: 1,
+		name: "Dagger"
+	});
+	setup.gamedata.add(WEAPON, {
+		id: "shortsword",
+		cost: 10,
+		att: 3,
+		name: "Short Sword"
+	});
+	setup.gamedata.add(WEAPON, {
+		id: "longsword",
+		cost: 25,
+		att: 5,
+		name: "Long Sword"
+	});
+}
+/* twine-user-script #10: "gamedata.js" */
+setup.gamedata = {
+    map: {}
+};
+
+setup.gamedata.add = function(type, def){
+    if (type == null){
+        console.error("Tried to add with null type.");
+    }
+    if (def == null){
+        console.error("Tried to add null def.");
+    }
+    if (def.id == null){
+        console.error("Tried to add def of type " + type + " with no id.");
+    }
+    if (this.map[type] == null){
+        this.map[type] = {};
+    }
+    if (this.map[type][def.id] != null){
+        console.error("Tried to add duplicate definition for " + def.id);
+    }
+    this.map[type][def.id] = def;
+};
+
+setup.gamedata.get = function(type, id){
+    if (id == null || id.length == 0){
+        console.error("Tried to get with null or 0-length id.");
+    }
+    if (type == null){
+        console.error("Tried to get with null type.");
+    }
+    if (!this.map.hasOwnProperty(type)){
+        console.error("Tried to get with type " + type + " but there is no gamedata.");
+    }
+    return this.map[type][id];
+};
+
+setup.gamedata.getall = function(type){
+    if (!this.map.hasOwnProperty(type)){
+        console.error("Tried to getall with type " + type + " but there is no gamedata.");
+    }
+    return this.map[type];
+}
+/* twine-user-script #11: "player.js" */
 window.get_next_level_threshold = function(current_level){
 	return 5 + current_level * 5;
 }
@@ -560,7 +734,6 @@ You&#39;ve been isekai&#39;d!
 	&lt;&lt;print _log&gt;&gt;
 &lt;&lt;/for&gt;&gt;
 &lt;&lt;set $roundLog=[]&gt;&gt;\</tw-passagedata><tw-passagedata pid="6" name="CombatWin" tags="" position="725,100" size="100,100">&lt;&lt;link &quot;You won!&quot; &quot;Dungeon&quot;&gt;&gt;\
-	&lt;&lt;set $dungeon.floors[$dungeon.current_floor].rooms[$dungeon.current_room].encounter = null&gt;&gt;
 &lt;&lt;/link&gt;&gt;
 &lt;&lt;set _xp = 0&gt;&gt;\
 &lt;&lt;set _gp = 0&gt;&gt;\
@@ -584,9 +757,9 @@ Opponents:
 		  			&lt;&lt;include &quot;EnemyAttacks&quot;&gt;&gt;
 		  			&lt;&lt;goto &quot;Combat&quot;&gt;&gt;
 		  		&lt;&lt;/button&gt;&gt;
-		  		&lt;&lt;print &quot;_enemy.tag HP: _enemy.hp/_enemy.maxhp&quot;&gt;&gt;
+		  		&lt;&lt;print &quot;_enemy.name HP: _enemy.hp/_enemy.maxhp&quot;&gt;&gt;
 		  	&lt;&lt;else&gt;&gt;
-		  		&lt;&lt;print &quot;_enemy.tag Dead&quot;&gt;&gt;
+		  		&lt;&lt;print &quot;_enemy.name Dead&quot;&gt;&gt;
 	  		&lt;&lt;/if&gt;&gt;
 		&lt;&lt;/capture&gt;&gt;
 		&lt;&lt;/nobr&gt;&gt;
@@ -609,8 +782,8 @@ Opponents:
         let player_combatant = {
             hp: player.hp,
             maxhp: player.maxhp,
-            att: player.weapon == null ? player.att : player.att + setup.gamedata.weapons[player.weapon].att,
-            def: player.armor == null ? player.def : player.def + setup.gamedata.armors[player.armor].def
+            att: player.weapon == null ? player.att : player.att + setup.gamedata.get(&quot;Weapon&quot;, player.weapon).att,
+            def: player.armor == null ? player.def : player.def + setup.gamedata.get(&quot;Armor&quot;, player.armor).def
         };
         combat.addPlayer(&quot;player&quot;, player_combatant);
 
@@ -628,15 +801,14 @@ Opponents:
     &lt;&lt;/script&gt;&gt;\
 &lt;&lt;/widget&gt;&gt;</tw-passagedata><tw-passagedata pid="11" name="Die" tags="" position="100,225" size="100,100">You lost a fight! You black out and reawaken in town.
 
-&lt;&lt;link &quot;Town&quot; &quot;Town&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="12" name="Dungeon" tags="" position="225,225" size="100,100">&lt;&lt;tickDungeon&gt;&gt;\
-
-&lt;&lt;if $event != null&gt;&gt;\
+&lt;&lt;link &quot;Town&quot; &quot;Town&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="12" name="Dungeon" tags="" position="225,225" size="100,100">&lt;&lt;if $event != null&gt;&gt;\
 	&lt;&lt;link &quot;Starting event!&quot; &quot;Event&quot;&gt;&gt;
 		&lt;&lt;startEvent $event&gt;&gt;
 	&lt;&lt;/link&gt;&gt;
 &lt;&lt;elseif $encounter != null&gt;&gt;\
 	&lt;&lt;link &quot;Starting combat!&quot; &quot;Combat&quot;&gt;&gt;
 		&lt;&lt;startCombat $encounter&gt;&gt;
+		&lt;&lt;set $encounter=null&gt;&gt;
 	&lt;&lt;/link&gt;&gt;
 &lt;&lt;else&gt;&gt;
 	Floor: &lt;&lt;print $floor.id&gt;&gt;
@@ -647,161 +819,135 @@ Opponents:
 	&lt;&lt;include &quot;DungeonNav&quot;&gt;&gt;
 &lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="13" name="DungeonMap" tags="" position="350,225" size="100,100">&lt;div class=&#39;map&#39;&gt;
 	&lt;&lt;nobr&gt;&gt;
-		&lt;&lt;set _offsets = $room.id.split(&#39;,&#39;).map(Number)&gt;&gt;
-		&lt;&lt;for _i, _id range $explored_rooms[$dungeon.current_floor]&gt;&gt;
-			&lt;&lt;set _room = $floor.rooms[_id]&gt;&gt;
-			&lt;&lt;set _coords = _id.split(&#39;,&#39;).map(Number)&gt;&gt;
-			&lt;&lt;set _coords = [_coords[0] - _offsets[0], _offsets[1] - _coords[1]]&gt;&gt;
-			&lt;&lt;set _x = (_coords[0] * 50) + 130 - 20&gt;&gt;
-			&lt;&lt;set _y = (_coords[1] * 50) + 130 - 20&gt;&gt;
-			&lt;&lt;if _room.id == $room.id&gt;&gt;
-				&lt;&lt;set _name = &quot;🤺&quot;&gt;&gt;
-			&lt;&lt;elseif _room.start&gt;&gt;
-				&lt;&lt;set _name = &quot;&amp;#9660;&quot;&gt;&gt;
-			&lt;&lt;elseif _room.end&gt;&gt;
-				&lt;&lt;set _name = &quot;&amp;#9650;&quot;&gt;&gt;
-			&lt;&lt;else&gt;&gt;
-				&lt;&lt;set _name = &quot;&quot;&gt;&gt;
+		&lt;&lt;set _offsets = [$room.x, $room.y]&gt;&gt;
+		&lt;&lt;for _id range $explored_rooms&gt;&gt;
+			&lt;&lt;if _id.startsWith($floor.id)&gt;&gt;
+				&lt;&lt;set _other_room = setup.gamedata.get(&quot;Room&quot;, _id)&gt;&gt;
+				&lt;&lt;set _coords = [_other_room.x, _other_room.y]&gt;&gt;
+				&lt;&lt;set _coords = [_coords[0] - _offsets[0], _offsets[1] - _coords[1]]&gt;&gt;
+				&lt;&lt;set _x = (_coords[0] * 50) + 130 - 20&gt;&gt;
+				&lt;&lt;set _y = (_coords[1] * 50) + 130 - 20&gt;&gt;
+				&lt;&lt;if $room.id == _other_room.id&gt;&gt;
+					&lt;&lt;set _name = &quot;🤺&quot;&gt;&gt;
+				&lt;&lt;elseif _other_room.exits[&quot;Down&quot;] != null&gt;&gt;
+					&lt;&lt;set _name = &quot;&amp;#9660;&quot;&gt;&gt;
+				&lt;&lt;elseif _other_room.exits[&quot;Up&quot;] != null&gt;&gt;
+					&lt;&lt;set _name = &quot;&amp;#9650;&quot;&gt;&gt;
+				&lt;&lt;else&gt;&gt;
+					&lt;&lt;set _name = &quot;&quot;&gt;&gt;
+				&lt;&lt;/if&gt;&gt;
+				&lt;&lt;print `&lt;div style=&quot;left:${_x}px; top:${_y}px&quot; class=&quot;room exploredRoom&quot;&gt;${_name}
+					&lt;&lt;if _other_room.exits[&quot;North&quot;] != null&gt;&gt;
+						&lt;div style=&quot;left:15px; top:-10px&quot; class=&quot;exit&quot;&gt;&lt;/div&gt;
+					&lt;&lt;/if&gt;&gt;
+					&lt;&lt;if _other_room.exits[&quot;South&quot;] != null&gt;&gt;
+						&lt;div style=&quot;left:15px; top:40px&quot; class=&quot;exit&quot;&gt;&lt;/div&gt;
+					&lt;&lt;/if&gt;&gt;
+					&lt;&lt;if _other_room.exits[&quot;East&quot;] != null&gt;&gt;
+						&lt;div style=&quot;left:40px; top:15px&quot; class=&quot;exit&quot;&gt;&lt;/div&gt;
+					&lt;&lt;/if&gt;&gt;
+					&lt;&lt;if _other_room.exits[&quot;West&quot;] != null&gt;&gt;
+						&lt;div style=&quot;left:-10px; top:15px&quot; class=&quot;exit&quot;&gt;&lt;/div&gt;
+					&lt;&lt;/if&gt;&gt;
+				&lt;/div&gt;`&gt;&gt;
 			&lt;&lt;/if&gt;&gt;
-
-			&lt;&lt;print `&lt;div style=&quot;left:${_x}px; top:${_y}px&quot; class=&quot;room exploredRoom&quot;&gt;${_name}
-				&lt;&lt;if _room.north&gt;&gt;
-					&lt;div style=&quot;left:15px; top:-10px&quot; class=&quot;exit&quot;&gt;&lt;/div&gt;
-				&lt;&lt;/if&gt;&gt;
-				&lt;&lt;if _room.south&gt;&gt;
-					&lt;div style=&quot;left:15px; top:40px&quot; class=&quot;exit&quot;&gt;&lt;/div&gt;
-				&lt;&lt;/if&gt;&gt;
-				&lt;&lt;if _room.east&gt;&gt;
-					&lt;div style=&quot;left:40px; top:15px&quot; class=&quot;exit&quot;&gt;&lt;/div&gt;
-				&lt;&lt;/if&gt;&gt;
-				&lt;&lt;if _room.west&gt;&gt;
-					&lt;div style=&quot;left:-10px; top:15px&quot; class=&quot;exit&quot;&gt;&lt;/div&gt;
-				&lt;&lt;/if&gt;&gt;
-			&lt;/div&gt;`&gt;&gt;
 		&lt;&lt;/for&gt;&gt;
 	&lt;&lt;/nobr&gt;&gt;
 &lt;/div&gt;</tw-passagedata><tw-passagedata pid="14" name="DungeonNav" tags="" position="475,225" size="100,100">&lt;&lt;nobr&gt;&gt;
-		&lt;&lt;if $room.start&gt;&gt;
-			&lt;&lt;if $floor.id == 1&gt;&gt;
-				&lt;&lt;link &quot;Exit Dungeon&quot;&gt;&gt;
-					&lt;&lt;exitDungeon&gt;&gt;
-					&lt;&lt;goto &quot;DungeonEntrance&quot;&gt;&gt;
-				&lt;&lt;/link&gt;&gt;
-			&lt;&lt;else&gt;&gt;
-				&lt;&lt;link &quot;Previous Floor&quot;&gt;&gt;
-					&lt;&lt;goToPrevFloor&gt;&gt;
-					&lt;&lt;goto &quot;Dungeon&quot;&gt;&gt;
-				&lt;&lt;/link&gt;&gt;
-			&lt;&lt;/if&gt;&gt;
-		&lt;&lt;/if&gt;&gt;
-		&lt;&lt;if $room.end&gt;&gt;\
-			&lt;&lt;if $floor.id != $dungeon.max_floor&gt;&gt;
-				&lt;&lt;link &quot;Next Floor&quot;&gt;&gt;
-					&lt;&lt;goToNextFloor&gt;&gt;
-					&lt;&lt;goto &quot;Dungeon&quot;&gt;&gt;
-				&lt;&lt;/link&gt;&gt;
-			&lt;&lt;/if&gt;&gt;
-		&lt;&lt;/if&gt;&gt;
 		&lt;br&gt;
-		&lt;&lt;if $room.north&gt;&gt;
-			&amp;emsp;&lt;&lt;link &quot;North&quot;&gt;&gt;
-				&lt;&lt;moveIntoRoom $room.north&gt;&gt;
-				&lt;&lt;goto &quot;Dungeon&quot;&gt;&gt;
+		&lt;&lt;if $room.exits[&quot;North&quot;] != null&gt;&gt;
+			&amp;emsp;&lt;&lt;link &quot;North&quot; &quot;Dungeon&quot;&gt;&gt;
+				&lt;&lt;setRoom $room.exits[&quot;North&quot;]&gt;&gt;
 			&lt;&lt;/link&gt;&gt;
 		&lt;&lt;else&gt;&gt;
 			&amp;emsp;North
 		&lt;&lt;/if&gt;&gt;
 		&lt;br&gt;
-		&lt;&lt;if $room.west&gt;&gt;
-			&lt;&lt;link &quot;West&quot;&gt;&gt;
-				&lt;&lt;moveIntoRoom $room.west&gt;&gt;
-				&lt;&lt;goto &quot;Dungeon&quot;&gt;&gt;
+		&lt;&lt;if $room.exits[&quot;West&quot;] != null&gt;&gt;
+			&lt;&lt;link &quot;West&quot; &quot;Dungeon&quot;&gt;&gt;
+				&lt;&lt;setRoom $room.exits[&quot;West&quot;]&gt;&gt;
 			&lt;&lt;/link&gt;&gt;
 		&lt;&lt;else&gt;&gt;
 			West
 		&lt;&lt;/if&gt;&gt;
-		&lt;&lt;if $room.east&gt;&gt;
-			&lt;&lt;link &quot;East&quot;&gt;&gt;
-				&lt;&lt;moveIntoRoom $room.east&gt;&gt;
-				&lt;&lt;goto &quot;Dungeon&quot;&gt;&gt;
+		&lt;&lt;if $room.exits[&quot;East&quot;] != null&gt;&gt;
+			&lt;&lt;link &quot;East&quot; &quot;Dungeon&quot;&gt;&gt;
+				&lt;&lt;setRoom $room.exits[&quot;East&quot;]&gt;&gt;
 			&lt;&lt;/link&gt;&gt;
 		&lt;&lt;else&gt;&gt;
 			East
 		&lt;&lt;/if&gt;&gt;
 		&lt;br&gt;
-		&lt;&lt;if $room.south&gt;&gt;
-			&amp;emsp;&lt;&lt;link &quot;South&quot;&gt;&gt;
-				&lt;&lt;moveIntoRoom $room.south&gt;&gt;
-				&lt;&lt;goto &quot;Dungeon&quot;&gt;&gt;
+		&lt;&lt;if $room.exits[&quot;South&quot;] != null&gt;&gt;
+			&amp;emsp;&lt;&lt;link &quot;South&quot; &quot;Dungeon&quot;&gt;&gt;
+				&lt;&lt;setRoom $room.exits[&quot;South&quot;]&gt;&gt;
 			&lt;&lt;/link&gt;&gt;
 		&lt;&lt;else&gt;&gt;
 			&amp;emsp;South
 		&lt;&lt;/if&gt;&gt;
 		&lt;br&gt;
-	&lt;&lt;/nobr&gt;&gt;</tw-passagedata><tw-passagedata pid="15" name="DungeonWidgets" tags="widget" position="600,225" size="100,100">&lt;&lt;widget &quot;initDungeon&quot;&gt;&gt;
-    &lt;&lt;script&gt;&gt;
-    	let dungeon = window.init_dungeon();
-
-    	for(const floor of dungeon.floors){
-			
-		}
-
-    	State.variables.dungeon = dungeon;
-		State.variables.floor = dungeon.floors[dungeon.current_floor];
-		State.variables.room = dungeon.floors[dungeon.current_floor].rooms[dungeon.current_room];
-    &lt;&lt;/script&gt;&gt;
+		&lt;&lt;if $room.exits[&quot;Down&quot;] != null&gt;&gt;
+			&lt;&lt;if $floor.id == &quot;1&quot;&gt;&gt;
+				&lt;&lt;link &quot;Exit Dungeon&quot; &quot;DungeonEntrance&quot;&gt;&gt;
+					&lt;&lt;exitDungeon&gt;&gt;
+				&lt;&lt;/link&gt;&gt;
+			&lt;&lt;else&gt;&gt;
+				&lt;&lt;link &quot;Previous Floor&quot; &quot;Dungeon&quot;&gt;&gt;
+				&lt;&lt;goToFloorCompound $room.exits[&quot;Down&quot;]&gt;&gt;
+				&lt;&lt;/link&gt;&gt;
+			&lt;&lt;/if&gt;&gt;
+		&lt;&lt;/if&gt;&gt;
+		&lt;&lt;if $room.exits[&quot;Up&quot;] != null&gt;&gt;\
+			&lt;&lt;link &quot;Next Floor&quot; &quot;Dungeon&quot;&gt;&gt;
+				&lt;&lt;goToFloorCompound $room.exits[&quot;Up&quot;]&gt;&gt;
+			&lt;&lt;/link&gt;&gt;
+		&lt;&lt;/if&gt;&gt;
+	&lt;&lt;/nobr&gt;&gt;</tw-passagedata><tw-passagedata pid="15" name="DungeonWidgets" tags="widget" position="600,225" size="100,100">&lt;&lt;widget &quot;enterDungeon&quot;&gt;&gt;
+	&lt;&lt;set $encounters = {}&gt;&gt;
+	&lt;&lt;set $events = {}&gt;&gt;
+	&lt;&lt;set $explored_rooms = new Set()&gt;&gt;
+	&lt;&lt;goToFloor &quot;1&quot; &quot;1:0,0&quot;&gt;&gt;
 &lt;&lt;/widget&gt;&gt;
 
-&lt;&lt;widget &quot;tickDungeon&quot;&gt;&gt;
-	&lt;&lt;script&gt;&gt;
-		let dungeon = State.variables.dungeon;
-		State.variables.floor = dungeon.floors[dungeon.current_floor];
-		State.variables.room = dungeon.floors[dungeon.current_floor].rooms[dungeon.current_room];
-		State.variables.explored_rooms[dungeon.current_floor].add(dungeon.current_room);
-		State.variables.encounter = State.variables.room.encounter;
-		if (State.variables.room.event == null || (State.variables.room.event.type == &quot;once&quot; &amp;&amp; State.variables.flags.has(State.variables.room.event.id))){
-			State.variables.event = null;			
-		}
-		else {
-			State.variables.event = State.variables.room.event;
-		}		
+&lt;&lt;widget &quot;setRoom&quot;&gt;&gt;
+	&lt;&lt;set $room = setup.gamedata.get(&quot;Room&quot;, $args[0])&gt;&gt;
+	&lt;&lt;set $event = null&gt;&gt;
+	&lt;&lt;run $explored_rooms.add($room.id)&gt;&gt;
+	&lt;&lt;if $room.id in $encounters&gt;&gt;
+		&lt;&lt;set $encounter = $encounters[$room.id]&gt;&gt;
+		&lt;&lt;run delete $encounters[$room.id]&gt;&gt;
+	&lt;&lt;else&gt;&gt;
+		&lt;&lt;set $encounter = null&gt;&gt;
+	&lt;&lt;/if&gt;&gt;
+	&lt;&lt;if $room.id in $events&gt;&gt;
+		&lt;&lt;set _event = $events[$room.id]&gt;&gt;
+		&lt;&lt;if _event.type == &quot;once&quot; &amp;&amp; $flags.has(_event.id)&gt;&gt;
+			&lt;&lt;set $event = null&gt;&gt;
+		&lt;&lt;else&gt;&gt;
+			&lt;&lt;set $event = _event&gt;&gt;
+		&lt;&lt;/if&gt;&gt;
+		&lt;&lt;run delete $events[$room.id]&gt;&gt;
+	&lt;&lt;else&gt;&gt;
+		&lt;&lt;set $event = null&gt;&gt;
+	&lt;&lt;/if&gt;&gt;
+&lt;&lt;/widget&gt;&gt;
 
-	&lt;&lt;/script&gt;&gt;
+&lt;&lt;widget &quot;goToFloor&quot;&gt;&gt;
+	&lt;&lt;set $floor = setup.gamedata.get(&quot;Floor&quot;, $args[0])&gt;&gt;
+	&lt;&lt;setRoom $args[1]&gt;&gt;
+	&lt;&lt;rollEncounters $floor.id&gt;&gt;
+	&lt;&lt;set $events = clone($floor.events)&gt;&gt;
+&lt;&lt;/widget&gt;&gt;
+
+&lt;&lt;widget &quot;goToFloorCompound&quot;&gt;&gt;
+	&lt;&lt;goToFloor $args[0].split(&#39;:&#39;)[0] $args[0]&gt;&gt;
 &lt;&lt;/widget&gt;&gt;
 
 &lt;&lt;widget &quot;exitDungeon&quot;&gt;&gt;
-	&lt;&lt;script&gt;&gt;
-		State.variables.dungeon = null;
-		State.variables.floor = null;
-		State.variables.room = null;
-	&lt;&lt;/script&gt;&gt;
 &lt;&lt;/widget&gt;&gt;
 
-&lt;&lt;widget &quot;moveIntoRoom&quot;&gt;&gt;
-	&lt;&lt;script&gt;&gt;
-		let newRoomId = State.variables.args[0];
-		State.variables.dungeon.current_room = newRoomId;
-	&lt;&lt;/script&gt;&gt;
-&lt;&lt;/widget&gt;&gt;
-
-&lt;&lt;widget &quot;goToNextFloor&quot;&gt;&gt;
-	&lt;&lt;script&gt;&gt;
-		let dungeon = State.variables.dungeon;
-		dungeon.current_floor++;
-		window.init_encounters(dungeon.floors[dungeon.current_floor]);
-		dungeon.current_room = dungeon.floors[dungeon.current_floor].start;
-		if (State.variables.explored_rooms.length &lt;= dungeon.current_floor){
-			State.variables.explored_rooms.push(new Set());
-		}
-	&lt;&lt;/script&gt;&gt;
-&lt;&lt;/widget&gt;&gt;
-
-&lt;&lt;widget &quot;goToPrevFloor&quot;&gt;&gt;
-	&lt;&lt;script&gt;&gt;
-		let dungeon = State.variables.dungeon;
-		dungeon.current_floor--;
-		dungeon.current_room = dungeon.floors[dungeon.current_floor].end;	
-	&lt;&lt;/script&gt;&gt;
+&lt;&lt;widget &quot;rollEncounters&quot;&gt;&gt;
+	&lt;&lt;run setup.roll_encounters($args[0])&gt;&gt;
 &lt;&lt;/widget&gt;&gt;</tw-passagedata><tw-passagedata pid="16" name="Event" tags="" position="725,225" size="100,100">&lt;&lt;if !$event.finished&gt;&gt;
 	&lt;&lt;include $event.passage&gt;&gt;
 &lt;&lt;else&gt;&gt;
@@ -809,15 +955,11 @@ Opponents:
 		&lt;&lt;if $event.type == &quot;once&quot;&gt;&gt;
 			&lt;&lt;run $flags.add($event.id)&gt;&gt;
 		&lt;&lt;/if&gt;&gt;
-		&lt;&lt;set $dungeon.floors[$dungeon.current_floor].rooms[$dungeon.current_room].event = null&gt;&gt;
+		&lt;&lt;run delete $events[$room.id]&gt;&gt;
+		&lt;&lt;set $event = null&gt;&gt;
 	&lt;&lt;/link&gt;&gt;
 &lt;&lt;/if&gt;&gt;</tw-passagedata><tw-passagedata pid="17" name="EventWidgets" tags="widget" position="850,225" size="100,100">&lt;&lt;widget &quot;startEvent&quot;&gt;&gt;\
-    &lt;&lt;script&gt;&gt;
-        let event = State.variables.args[0];
-        event.finished = false;
-
-        State.variables.current_event = event;
-    &lt;&lt;/script&gt;&gt;\
+    &lt;&lt;set $event.finished = false&gt;&gt;
 &lt;&lt;/widget&gt;&gt;</tw-passagedata><tw-passagedata pid="18" name="TestEventAlways" tags="" position="975,225" size="100,100">You&#39;ve reached the test event! This one always plays!
 &lt;&lt;link &quot;Clear&quot; &quot;Event&quot;&gt;&gt;
     &lt;&lt;set $event.finished = true&gt;&gt;
@@ -833,47 +975,13 @@ Opponents:
 &lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="20" name="StoryInit" tags="" position="1225,225" size="100,100">&lt;&lt;script&gt;&gt;
 	Config.saves.slots = 3;
 	setup.init_enemies();
-	setup.gamedata = {};
-	setup.gamedata.weapons = {};
-	setup.gamedata.weapons[&quot;dagger&quot;] = {
-		id: &quot;dagger&quot;,
-		cost: 3,
-		att: 1,
-		name: &quot;Dagger&quot;
-	};
-	setup.gamedata.weapons[&quot;shortsword&quot;] = {
-		id: &quot;shortsword&quot;,
-		cost: 10,
-		att: 3,
-		name: &quot;Short Sword&quot;
-	};
-	setup.gamedata.weapons[&quot;longsword&quot;] = {
-		id: &quot;longsword&quot;,
-		cost: 25,
-		att: 5,
-		name: &quot;Long Sword&quot;
-	};
-	setup.gamedata.armors = {};
-	setup.gamedata.armors[&quot;leather&quot;] = {
-		id: &quot;leather&quot;,
-		cost: 5,
-		def: 1,
-		name: &quot;Leather&quot;
-	};
-	setup.gamedata.armors[&quot;chain&quot;] = {
-		id: &quot;chain&quot;,
-		cost: 10,
-		def: 2,
-		name: &quot;Chain Mail&quot;
-	};
-	setup.gamedata.armors[&quot;plate&quot;] = {
-		id: &quot;plate&quot;,
-		cost: 25,
-		def: 3,
-		name: &quot;Plate Mail&quot;
-	};
+	setup.init_weapons();
+	setup.init_armor();
+	setup.init_rooms();
+	setup.init_floors();
+	setup.init_encounters();
+	setup.assign_rooms_to_floors();	
 &lt;&lt;/script&gt;&gt;
-&lt;&lt;set $explored_rooms = [new Set()]&gt;&gt;
 &lt;&lt;set $game_version=&quot;0.4.0&quot;&gt;&gt;</tw-passagedata><tw-passagedata pid="21" name="MainMenu" tags="" position="100,350" size="100,100">&lt;&lt;set _title = Story.title&gt;&gt;
 &lt;&lt;print _title&gt;&gt;
 &lt;&lt;print Version: $game_version&gt;&gt;
@@ -890,7 +998,7 @@ You have $player.gp gold.
     &quot;plate&quot;
 ]&gt;&gt;
 &lt;&lt;for _id range _armors&gt;&gt;
-    &lt;&lt;set _armor = setup.gamedata.armors[_id]&gt;&gt;
+    &lt;&lt;set _armor = setup.gamedata.get(&quot;Armor&quot;, _id)&gt;&gt;
         &lt;&lt;capture _armor&gt;&gt;
         _armor.name: -_armor.def damage: _armor.cost gp
         &lt;&lt;if $player.gp &gt;= _armor.cost &amp;&amp; $player.armor != _armor.id&gt;&gt;
@@ -906,13 +1014,14 @@ You have $player.gp gold.
 &lt;&lt;if $player.armor == null&gt;&gt;
     You don&#39;t have any armor.
 &lt;&lt;else&gt;&gt;
-    &lt;&lt;set _armor_name = setup.gamedata.armors[$player.armor].name&gt;&gt;
+    &lt;&lt;set _armor_name = setup.gamedata.get(&quot;Armor&quot;, $player.armor).name&gt;&gt;
     Current armor: _armor_name
 &lt;&lt;/if&gt;&gt;
 
 &lt;&lt;link &quot;Back&quot; &quot;Town&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="25" name="DungeonEntrance" tags="" position="600,350" size="100,100">You are in front of an iron doorway surrounded by two guards.
 
-&lt;&lt;link &quot;Enter the dungeon&quot; &quot;Dungeon&quot;&gt;&gt;&lt;&lt;initDungeon&gt;&gt;
+&lt;&lt;link &quot;Enter the dungeon&quot; &quot;Dungeon&quot;&gt;&gt;
+	&lt;&lt;enterDungeon&gt;&gt;
 	&lt;&lt;set $player.hp = $player.maxhp&gt;&gt;
 &lt;&lt;/link&gt;&gt;
 &lt;&lt;link &quot;Back to town&quot; &quot;Town&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="26" name="Town" tags="" position="725,350" size="100,100">The town is bustling with adventurers. You find an entrance to a dungeon.
@@ -928,7 +1037,7 @@ You have $player.gp gold.
     &quot;longsword&quot;
 ]&gt;&gt;
 &lt;&lt;for _id range _weapons&gt;&gt;
-    &lt;&lt;set _weapon = setup.gamedata.weapons[_id]&gt;&gt;
+    &lt;&lt;set _weapon = setup.gamedata.get(&quot;Weapon&quot;, _id)&gt;&gt;
         &lt;&lt;capture _weapon&gt;&gt;
         _weapon.name: +_weapon.att damage: _weapon.cost gp
         &lt;&lt;if $player.gp &gt;= _weapon.cost &amp;&amp; $player.weapon != _weapon.id&gt;&gt;
@@ -944,16 +1053,16 @@ You have $player.gp gold.
 &lt;&lt;if $player.weapon == null&gt;&gt;
     You don&#39;t have a weapon.
 &lt;&lt;else&gt;&gt;
-    &lt;&lt;set _weap_name = setup.gamedata.weapons[$player.weapon].name&gt;&gt;
+    &lt;&lt;set _weap_name = setup.gamedata.get(&quot;Weapon&quot;, $player.weapon).name&gt;&gt;
     Current weapon: _weap_name
 &lt;&lt;/if&gt;&gt;
 
 &lt;&lt;link &quot;Back&quot; &quot;Town&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="28" name="PlayerCardWidget" tags="widget" position="975,350" size="100,100">&lt;&lt;widget &quot;showPlayerCard&quot;&gt;&gt;\
     &lt;&lt;nobr&gt;&gt;
-		&lt;&lt;set _dmg = $player.weapon == null ? $player.att : $player.att + setup.gamedata.weapons[$player.weapon].att&gt;&gt;
-		&lt;&lt;set _def = $player.armor == null ? $player.def : $player.def + setup.gamedata.armors[$player.armor].def&gt;&gt;
-		&lt;&lt;set _weap = $player.weapon == null ? &quot;None&lt;br&gt;&quot; : setup.gamedata.weapons[$player.weapon].name&gt;&gt;
-		&lt;&lt;set _arm = $player.armor == null ? &quot;None&quot; : setup.gamedata.armors[$player.armor].name&gt;&gt;
+		&lt;&lt;set _dmg = $player.weapon == null ? $player.att : $player.att + setup.gamedata.get(&quot;Weapon&quot;, $player.weapon).att&gt;&gt;
+		&lt;&lt;set _def = $player.armor == null ? $player.def : $player.def + setup.gamedata.get(&quot;Armor&quot;, $player.armor).def&gt;&gt;
+		&lt;&lt;set _weap = $player.weapon == null ? &quot;None&lt;br&gt;&quot; : setup.gamedata.get(&quot;Weapon&quot;, $player.weapon).name&gt;&gt;
+		&lt;&lt;set _arm = $player.armor == null ? &quot;None&quot; : setup.gamedata.get(&quot;Armor&quot;, $player.armor).name&gt;&gt;
 
 		&lt;&lt;run Dialog.setup()&gt;&gt;
 		&lt;&lt;run Dialog.wiki(&quot;Name: $player.name&lt;br&gt;&quot;)&gt;&gt;
