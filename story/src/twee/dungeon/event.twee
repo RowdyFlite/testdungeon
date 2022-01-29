@@ -6,6 +6,7 @@
 		<<if $event.type == "once">>
 			<<run $flags.add($event.id)>>
 		<</if>>
-		<<set $dungeon.floors[$dungeon.current_floor].rooms[$dungeon.current_room].event = null>>
+		<<run delete $events[$room.id]>>
+		<<set $event = null>>
 	<</link>>
 <</if>>

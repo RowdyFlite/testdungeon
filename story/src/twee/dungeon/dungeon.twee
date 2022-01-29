@@ -3,7 +3,6 @@
 <<if $event != null>>\
 	<<link "Starting event!" "Event">>
 		<<startEvent $event>>
-		<<set $event=null>>
 	<</link>>
 <<elseif $encounter != null>>\
 	<<link "Starting combat!" "Combat">>

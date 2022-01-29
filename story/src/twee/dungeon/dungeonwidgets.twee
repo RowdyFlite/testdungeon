@@ -2,6 +2,7 @@
 
 <<widget "enterDungeon">>
 	<<set $encounters = {}>>
+	<<set $events = {}>>
 	<<set $explored_rooms = new Set()>>
 	<<goToFloor "1" "1:0,0">>
 <</widget>>
@@ -16,12 +17,19 @@
 	<<else>>
 		<<set $encounter = null>>
 	<</if>>
+	<<if $room.id in $events>>
+		<<set $event = $events[$room.id]>>
+		<<run delete $events[$room.id]>>
+	<<else>>
+		<<set $event = null>>
+	<</if>>
 <</widget>>
 
 <<widget "goToFloor">>
 	<<set $floor = setup.gamedata.get("Floor", $args[0])>>
 	<<setRoom $args[1]>>
 	<<rollEncounters $floor.id>>
+	<<set $events = clone($floor.events)>>
 <</widget>>
 
 <<widget "goToFloorCompound">>

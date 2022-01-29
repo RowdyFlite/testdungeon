@@ -1,10 +1,5 @@
 ::EventWidgets [widget]
 
 <<widget "startEvent">>\
-    <<script>>
-        let event = State.variables.args[0];
-        event.finished = false;
-
-        State.variables.current_event = event;
-    <</script>>\
+    <<set $event.finished = false>>
 <</widget>>
