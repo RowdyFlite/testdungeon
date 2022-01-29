@@ -17,19 +17,21 @@ setup.roll_encounters = function(floor_id){
 		}
 		
 		let roll = Math.random();
-		window.alert(`Room ID: ${room.id}. Rolled ${roll}. Encounter rate is ${floor.encounter_chance}`);
-
 
 		if (room.encounters_allowed && roll < floor.encounter_chance){
-			roll = Math.floor(Math.random() * total);
-			for (const encounter of encounter_table.encounters){
-				if (roll <= encounter.chance){
-					encounters[room_id] = encounter.tags;
-					continue;
-				}
-			}
+			encounters[room_id] = choose_encounter(encounter_table, total);
+			window.alert("Room id: " + room_id);
 		}
-		window.alert(`Roll to choose encounter: ${roll}. Encounter chosen: ${encounters[room_id]}`);
 	}
 	State.variables.encounters = encounters;
+}
+
+function choose_encounter(encounter_table, total){
+	let roll = Math.floor(Math.random() * total);
+	for (const encounter of encounter_table.encounters){
+		if (roll <= encounter.chance){
+			return encounter.tags;
+		}
+		roll -= encounter.chance;
+	}	
 }

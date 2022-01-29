@@ -13,14 +13,14 @@ setup.init_rooms = function(){
     setup.gamedata.add(ROOM, create_room(1, 0, 1));
     setup.gamedata.add(ROOM, create_room(1, 0, 2));
 
-    create_exit(setup.gamedata.get(ROOM, "1-0,0"), setup.gamedata.get(ROOM, "1-0,1"));
-    create_exit(setup.gamedata.get(ROOM, "1-0,1"), setup.gamedata.get(ROOM, "1-0,2"));
+    create_exit(setup.gamedata.get(ROOM, "1:0,0"), setup.gamedata.get(ROOM, "1:0,1"));
+    create_exit(setup.gamedata.get(ROOM, "1:0,1"), setup.gamedata.get(ROOM, "1:0,2"));
 
-    setup.gamedata.get(ROOM, "1-0,0").encounters_allowed = false;
-    setup.gamedata.get(ROOM, "1-0,2").encounters_allowed = false;
+    setup.gamedata.get(ROOM, "1:0,0").encounters_allowed = false;
+    setup.gamedata.get(ROOM, "1:0,2").encounters_allowed = false;
 
-    setup.gamedata.get(ROOM, "1-0,0").exits[DOWN] = OUT;
-    setup.gamedata.get(ROOM, "1-0,2").exits[UP] = "2-0,0";
+    setup.gamedata.get(ROOM, "1:0,0").exits[DOWN] = OUT;
+    setup.gamedata.get(ROOM, "1:0,2").exits[UP] = "2:0,0";
 
     setup.gamedata.add(ROOM, create_room(2, 0, 0));
     setup.gamedata.add(ROOM, create_room(2, 0, 1));
@@ -28,16 +28,16 @@ setup.init_rooms = function(){
     setup.gamedata.add(ROOM, create_room(2, -1, 1));
     setup.gamedata.add(ROOM, create_room(2, 0, 2));
 
-    create_exit(setup.gamedata.get(ROOM, "2-0,0"), setup.gamedata.get(ROOM, "2-0,1"));
-    create_exit(setup.gamedata.get(ROOM, "2-0,1"), setup.gamedata.get(ROOM, "2-0,2"));
-    create_exit(setup.gamedata.get(ROOM, "2-0,1"), setup.gamedata.get(ROOM, "2-1,1"));
-    create_exit(setup.gamedata.get(ROOM, "2-0,1"), setup.gamedata.get(ROOM, "2--1,1"));
+    create_exit(setup.gamedata.get(ROOM, "2:0,0"), setup.gamedata.get(ROOM, "2:0,1"));
+    create_exit(setup.gamedata.get(ROOM, "2:0,1"), setup.gamedata.get(ROOM, "2:0,2"));
+    create_exit(setup.gamedata.get(ROOM, "2:0,1"), setup.gamedata.get(ROOM, "2:-1,1"));
+    create_exit(setup.gamedata.get(ROOM, "2:0,1"), setup.gamedata.get(ROOM, "2:1,1"));
 
-    setup.gamedata.get(ROOM, "2-0,0").exits[DOWN] = "1-0,2";
-    setup.gamedata.get(ROOM, "2-0,2").exits[UP] = "3-0,0";
+    setup.gamedata.get(ROOM, "2:0,0").exits[DOWN] = "1:0,2";
+    setup.gamedata.get(ROOM, "2:0,2").exits[UP] = "3:0,0";
 
-    setup.gamedata.get(ROOM, "2-0,0").encounters_allowed = false;
-    setup.gamedata.get(ROOM, "2-0,2").encounters_allowed = false;
+    setup.gamedata.get(ROOM, "2:0,0").encounters_allowed = false;
+    setup.gamedata.get(ROOM, "2:0,2").encounters_allowed = false;
 
     setup.gamedata.add(ROOM, create_room(3, 0, 0));
     setup.gamedata.add(ROOM, create_room(3, 1, 0));
@@ -48,22 +48,22 @@ setup.init_rooms = function(){
     setup.gamedata.add(ROOM, create_room(3, 2, -2));
     setup.gamedata.add(ROOM, create_room(3, 2, -1));
 
-    create_exit(setup.gamedata.get(ROOM, "3-0,0"), setup.gamedata.get(ROOM, "3-1,0"));
-    create_exit(setup.gamedata.get(ROOM, "3-1,0"), setup.gamedata.get(ROOM, "3-2,0"));
-    create_exit(setup.gamedata.get(ROOM, "3-2,0"), setup.gamedata.get(ROOM, "3-3,0"));
-    create_exit(setup.gamedata.get(ROOM, "3-3,0"), setup.gamedata.get(ROOM, "3-3,-1"));
-    create_exit(setup.gamedata.get(ROOM, "3-3,-1"), setup.gamedata.get(ROOM, "3-3,-2"));
-    create_exit(setup.gamedata.get(ROOM, "3-3,-2"), setup.gamedata.get(ROOM, "3-2,-2"));
-    create_exit(setup.gamedata.get(ROOM, "3-2,-2"), setup.gamedata.get(ROOM, "3-2,-1"));
+    create_exit(setup.gamedata.get(ROOM, "3:0,0"), setup.gamedata.get(ROOM, "3:1,0"));
+    create_exit(setup.gamedata.get(ROOM, "3:1,0"), setup.gamedata.get(ROOM, "3:2,0"));
+    create_exit(setup.gamedata.get(ROOM, "3:2,0"), setup.gamedata.get(ROOM, "3:3,0"));
+    create_exit(setup.gamedata.get(ROOM, "3:3,0"), setup.gamedata.get(ROOM, "3:3,-1"));
+    create_exit(setup.gamedata.get(ROOM, "3:3,-1"), setup.gamedata.get(ROOM, "3:3,-2"));
+    create_exit(setup.gamedata.get(ROOM, "3:3,-2"), setup.gamedata.get(ROOM, "3:2,-2"));
+    create_exit(setup.gamedata.get(ROOM, "3:2,-2"), setup.gamedata.get(ROOM, "3:2,-1"));
     
-    setup.gamedata.get(ROOM, "3-0,0").exits[DOWN] = "2-0,2";
+    setup.gamedata.get(ROOM, "3:0,0").exits[DOWN] = "2:0,2";
 
-    setup.gamedata.get(ROOM, "3-0,0").encounters_allowed = false;
+    setup.gamedata.get(ROOM, "3:0,0").encounters_allowed = false;
 }
 
 function create_room(floor, x, y){
     return {
-        id: `${floor}-${x},${y}`,
+        id: `${floor}:${x},${y}`,
         floor: floor,
         x: x,
         y: y,

@@ -1,15 +1,21 @@
 ::DungeonWidgets [widget]
 
 <<widget "enterDungeon">>
-
-	<<goToFloor "1" "1-0,0">>
+	<<set $encounters = {}>>
+	<<set $explored_rooms = new Set()>>
+	<<goToFloor "1" "1:0,0">>
 <</widget>>
 
 <<widget "setRoom">>
 	<<set $room = setup.gamedata.get("Room", $args[0])>>
 	<<set $event = null>>
-	<<set $encounter = null>>
 	<<run $explored_rooms.add($room.id)>>
+	<<if $room.id in $encounters>>
+		<<set $encounter = $encounters[$room.id]>>
+		<<run delete $encounters[$room.id]>>
+	<<else>>
+		<<set $encounter = null>>
+	<</if>>
 <</widget>>
 
 <<widget "goToFloor">>
@@ -19,7 +25,7 @@
 <</widget>>
 
 <<widget "goToFloorCompound">>
-	<<goToFloor $args[0].split('-')[0] $args[0]>>
+	<<goToFloor $args[0].split(':')[0] $args[0]>>
 <</widget>>
 
 <<widget "exitDungeon">>

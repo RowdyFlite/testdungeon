@@ -9,5 +9,4 @@
 	setup.init_encounters();
 	setup.assign_rooms_to_floors();	
 <</script>>
-<<set $explored_rooms = new Set()>>
 <<set $game_version="0.4.0">>

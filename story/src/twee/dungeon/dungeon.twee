@@ -3,10 +3,12 @@
 <<if $event != null>>\
 	<<link "Starting event!" "Event">>
 		<<startEvent $event>>
+		<<set $event=null>>
 	<</link>>
 <<elseif $encounter != null>>\
 	<<link "Starting combat!" "Combat">>
 		<<startCombat $encounter>>
+		<<set $encounter=null>>
 	<</link>>
 <<else>>
 	Floor: <<print $floor.id>>
